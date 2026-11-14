@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Release: Web app 4.12</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="morphdom.min.js"></script>
+<script src="dc-lite.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="index.html" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <span style="display: flex; align-items: center; gap: 8px; color: #5B6270; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F7A4D"></span>Live · updated {{ago}}s ago</span>
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 24px 32px 64px; display: flex; flex-direction: column; gap: 24px">
+    <a href="index.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; text-decoration: none; font-weight: 500"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>All releases</a>
+
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 600">Web app 4.12</h1>
+          <span style="padding: 4px 12px; border-radius: 999px; background: #FDECEA; color: #B42318; font-weight: 600; font-size: 13px">At risk</span>
+        </div>
+        <p style="margin: 6px 0 0; color: #5B6270">Errors on b1842 are rising in staging. Target Oct 14 · Owner [RELEASE OWNER] · Sample data.</p>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none">Open in Jira</a>
+        <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none">Open in Kibana</a>
+      </div>
+    </div>
+
+    <section aria-label="Builds in flight" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
+      <sc-for list="{{builds}}" as="b" hint-placeholder-count="3">
+        <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{b.id}}</span>
+            <span style="font-size: 13px; font-weight: 500; color: {{b.ink}}">{{b.state}}</span>
+          </div>
+          <div style="color: #5B6270; font-size: 13px">{{b.where}}</div>
+          <div style="height: 6px; border-radius: 3px; background: #EEF0F3"><div style="height: 6px; border-radius: 3px; width: {{b.pct}}; background: {{b.bar}}"></div></div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section aria-label="Live charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 16px">
+
+      <figure style="margin: 0; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <figcaption style="font-weight: 600">User sessions per build</figcaption>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Real sessions by signed-in user, from Elastic · last 24h</div>
+        <div style="display: flex; align-items: flex-end; gap: 24px; height: 180px; margin-top: 20px; padding: 0 8px; border-bottom: 1px solid #D5D9E0">
+          <sc-for list="{{sessions}}" as="s" hint-placeholder-count="3">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px">
+              <span style="font-size: 13px; font-weight: 500">{{s.value}}</span>
+              <div style="width: 100%; max-width: 72px; border-radius: 6px 6px 0 0; height: {{s.h}}; background: {{s.fill}}"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 24px; padding: 8px 8px 0">
+          <sc-for list="{{sessions}}" as="s" hint-placeholder-count="3">
+            <span style="flex: 1; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #5B6270">{{s.id}} · {{s.users}} users</span>
+          </sc-for>
+        </div>
+      </figure>
+
+      <figure style="margin: 0; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <figcaption style="font-weight: 600">Errors per hour</figcaption>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">b1842 against b1840 · last 12h</div>
+        <svg viewBox="0 0 440 200" role="img" aria-label="Errors per hour: b1842 rising above b1840" style="width: 100%; height: auto; margin-top: 12px; display: block">
+          <line x1="32" y1="20" x2="432" y2="20" stroke="#EEF0F3"></line>
+          <line x1="32" y1="90" x2="432" y2="90" stroke="#EEF0F3"></line>
+          <line x1="32" y1="160" x2="432" y2="160" stroke="#D5D9E0"></line>
+          <text x="24" y="24" text-anchor="end" font-size="11" fill="#5B6270">12</text>
+          <text x="24" y="94" text-anchor="end" font-size="11" fill="#5B6270">6</text>
+          <text x="24" y="164" text-anchor="end" font-size="11" fill="#5B6270">0</text>
+          <path d="{{errPrev}}" fill="none" stroke="#8C93A0" stroke-width="2" stroke-dasharray="5 4"></path>
+          <path d="{{errNow}}" fill="none" stroke="#B42318" stroke-width="2.25" stroke-linejoin="round"></path>
+          <text x="32" y="188" font-size="11" fill="#5B6270">12h ago</text>
+          <text x="432" y="188" text-anchor="end" font-size="11" fill="#5B6270">now</text>
+        </svg>
+        <div style="display: flex; gap: 20px; font-size: 13px; color: #5B6270; margin-top: 4px">
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; background: #B42318"></span>b1842</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 0; border-top: 2px dashed #8C93A0"></span>b1840</span>
+        </div>
+      </figure>
+
+      <figure style="margin: 0; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <figcaption style="font-weight: 600">Build progress</figcaption>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Time in each stage, from GitHub · since Oct 8</div>
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 20px">
+          <sc-for list="{{stages}}" as="row" hint-placeholder-count="3">
+            <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{row.id}}</span>
+              <div style="display: flex; height: 22px; border-radius: 6px; overflow: hidden; background: #F1F3F6">
+                <div style="width: {{row.offset}}"></div>
+                <div style="width: {{row.build}}; background: #C9D6F5"></div>
+                <div style="width: {{row.test}}; background: #7E9BE6"></div>
+                <div style="width: {{row.stage}}; background: #2457D6"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #5B6270; margin-top: 16px">
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #C9D6F5"></span>Build</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #7E9BE6"></span>Test</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #2457D6"></span>Staging</span>
+        </div>
+      </figure>
+
+      <figure style="margin: 0; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <figcaption style="font-weight: 600">Open Jira issues</figcaption>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Fix version 4.12 · 6 open, target 0 by Oct 14</div>
+        <svg viewBox="0 0 440 200" role="img" aria-label="Open Jira issues falling from 14 to 6, behind the target line" style="width: 100%; height: auto; margin-top: 12px; display: block">
+          <line x1="32" y1="160" x2="432" y2="160" stroke="#D5D9E0"></line>
+          <line x1="32" y1="20" x2="432" y2="20" stroke="#EEF0F3"></line>
+          <text x="24" y="24" text-anchor="end" font-size="11" fill="#5B6270">14</text>
+          <text x="24" y="164" text-anchor="end" font-size="11" fill="#5B6270">0</text>
+          <path d="M32 20 L432 160" fill="none" stroke="#8C93A0" stroke-width="1.5" stroke-dasharray="5 4"></path>
+          <path d="{{jira}}" fill="none" stroke="#2457D6" stroke-width="2.25" stroke-linejoin="round"></path>
+          <text x="32" y="188" font-size="11" fill="#5B6270">Oct 4</text>
+          <text x="280" y="188" text-anchor="middle" font-size="11" fill="#5B6270">today</text>
+          <text x="432" y="188" text-anchor="end" font-size="11" fill="#5B6270">Oct 14</text>
+        </svg>
+        <div style="display: flex; gap: 20px; font-size: 13px; color: #5B6270; margin-top: 4px">
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; background: #2457D6"></span>Open issues</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 0; border-top: 2px dashed #8C93A0"></span>Target</span>
+        </div>
+      </figure>
+    </section>
+
+    <section aria-label="Timeline" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px">
+      <button onClick="{{toggle}}" aria-expanded="{{openStr}}" style="width: 100%; min-height: 56px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; background: none; border: 0; font: inherit; font-weight: 600; color: #16181D; cursor: pointer; text-align: left">
+        <span>Timeline <span style="font-weight: 400; color: #5B6270">· 12 events, latest {{latest}}</span></span>
+        <span style="color: #2457D6; font-weight: 500">{{toggleLabel}}</span>
+      </button>
+      <sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+        <ol style="list-style: none; margin: 0; padding: 0 20px 12px">
+          <sc-for list="{{events}}" as="e" hint-placeholder-count="5">
+            <li style="display: grid; grid-template-columns: 80px 96px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-top: 1px solid #EEF0F3; font-size: 14px">
+              <span style="color: #5B6270; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{e.time}}</span>
+              <span style="font-weight: 500">{{e.source}}</span>
+              <span>{{e.text}}</span>
+            </li>
+          </sc-for>
+        </ol>
+      </sc-if>
+    </section>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { open: false, ago: 2, tick: 0 };
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const ago = this.state.ago >= 9 ? 1 : this.state.ago + 1;
+      this.setState({ ago: ago, tick: ago === 1 ? this.state.tick + 1 : this.state.tick });
+    }, 1000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  line(values, max) {
+    return values.map((v, i) => (i ? 'L' : 'M') + (32 + i * 400 / (values.length - 1)).toFixed(1) + ' ' + (160 - v / max * 140).toFixed(1)).join(' ');
+  }
+  renderVals() {
+    const t = this.state.tick % 3;
+    const s1842 = 412 + t * 7;
+    const sessions = [
+      { id: 'b1838', value: 518, users: 61, fill: '#C9D6F5' },
+      { id: 'b1840', value: 297, users: 40, fill: '#7E9BE6' },
+      { id: 'b1842', value: s1842, users: 52 + t, fill: '#2457D6' }
+    ];
+    const maxS = 560;
+    const errNow = [2, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10 + t];
+    const errPrev = [2, 3, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 2];
+    const jira = [14, 14, 13, 12, 11, 10, 9, 8, 7, 6, 6];
+    const jiraPath = jira.map((v, i) => (i ? 'L' : 'M') + (32 + i * 248 / (jira.length - 1)).toFixed(1) + ' ' + (160 - v / 14 * 140).toFixed(1)).join(' ');
+    return {
+      ago: this.state.ago,
+      builds: [
+        { id: 'b1842', state: 'Errors rising', ink: '#B42318', where: 'Staging · merged Oct 10, 14:02', pct: '80%', bar: '#B42318' },
+        { id: 'b1840', state: 'Passed', ink: '#1F7A4D', where: 'Staging · held as fallback', pct: '100%', bar: '#1F7A4D' },
+        { id: 'b1838', state: 'Superseded', ink: '#5B6270', where: 'Retired from staging Oct 9', pct: '100%', bar: '#B8BEC9' }
+      ],
+      sessions: sessions.map((s) => ({ id: s.id, value: s.value, users: s.users, fill: s.fill, h: Math.round(s.value / maxS * 140) + 'px' })),
+      errNow: this.line(errNow, 12),
+      errPrev: this.line(errPrev, 12),
+      jira: jiraPath,
+      stages: [
+        { id: 'b1838', offset: '0%', build: '8%', test: '18%', stage: '20%' },
+        { id: 'b1840', offset: '30%', build: '7%', test: '22%', stage: '41%' },
+        { id: 'b1842', offset: '58%', build: '6%', test: '14%', stage: '22%' }
+      ],
+      open: this.state.open,
+      openStr: this.state.open ? 'true' : 'false',
+      toggleLabel: this.state.open ? 'Hide' : 'Show',
+      toggle: () => this.setState({ open: !this.state.open }),
+      latest: '14:31',
+      events: [
+        { time: '14:31', source: 'Kibana', text: 'Error rate on b1842 passed 8 per hour; release marked At risk' },
+        { time: '14:02', source: 'GitHub', text: 'b1842 deployed to staging after checks passed' },
+        { time: '13:40', source: 'Jira', text: 'WEB-2291 moved to Done' },
+        { time: '11:15', source: 'Datadog', text: 'Checkout latency monitor recovered' },
+        { time: '09:20', source: 'Notion', text: 'Release notes draft updated' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
