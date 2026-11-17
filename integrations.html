@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Integrations</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="morphdom.min.js"></script>
+<script src="dc-lite.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="index.html" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+        <a href="index.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Releases</a>
+        <a href="integrations.html" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #EEF2FC; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
+        <a href="connections.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
+      </nav>
+      <span title="Every number on this page is made up for the mockup." style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: #FFF3E0; color: #8A4B00; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C26A00"></span>Demo · simulated data</span>
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 32px 32px 64px; display: flex; flex-direction: column; gap: 24px">
+    <div>
+      <h1 style="margin: 0; font-size: 28px; font-weight: 600">Integrations</h1>
+      <p style="margin: 6px 0 0; color: #5B6270">How the releases in flight work with each other and with the services, partner products and hardware they connect to.</p>
+    </div>
+
+    <section aria-label="Recommendation" style="background: {{rec.bg}}; border: 1px solid {{rec.border}}; border-left: 6px solid {{rec.ink}}; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+        <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {{rec.ink}}">Recommendation</span>
+        <span style="font-size: 20px; font-weight: 600; color: {{rec.ink}}">{{rec.verdict}}</span>
+      </div>
+      <div><span style="font-weight: 600">Why:</span> {{rec.reason}}</div>
+      <div><span style="font-weight: 600">Next:</span> {{rec.action}}</div>
+      <div style="color: #5B6270; font-size: 13px">Hold a release that other releases depend on while any integration with it fails. Derived from the simulated matrix below.</div>
+    </section>
+
+    <section aria-label="Summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px">
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Integration checks</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{sum.total}}</div>
+        <div style="color: #5B6270; font-size: 13px">release × integration pairs</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Verified</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #1F4FC4">{{sum.ok}}</div>
+        <div style="color: #5B6270; font-size: 13px">all contract tests pass</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Failing</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #B42318">{{sum.fail}}</div>
+        <div style="color: #5B6270; font-size: 13px">breaks if shipped together</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Warnings</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #8A4B00">{{sum.warn}}</div>
+        <div style="color: #5B6270; font-size: 13px">works, with a known issue</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Not verified</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{sum.todo}}</div>
+        <div style="color: #5B6270; font-size: 13px">not tested yet or blocked</div>
+      </div>
+    </section>
+
+    <section aria-label="Ship order" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div>
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Ship order</h2>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Releases that need another release to go out first</div>
+      </div>
+      <sc-for list="{{chains}}" as="c" hint-placeholder-count="1">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span style="display: inline-flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 10px; border: 1px solid {{c.firstInk}}; background: {{c.firstBg}}">
+            <span style="font-size: 12px; color: #5B6270">1 · ships first</span>
+            <span style="font-weight: 600">{{c.first}}</span>
+            <span style="font-size: 13px; font-weight: 500; color: {{c.firstInk}}">{{c.firstState}}</span>
+          </span>
+          <svg width="40" height="16" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8h32M28 3l6 5-6 5" fill="none" stroke="#8C93A0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span style="display: inline-flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 10px; border: 1px solid {{c.thenInk}}; background: {{c.thenBg}}">
+            <span style="font-size: 12px; color: #5B6270">2 · then</span>
+            <span style="font-weight: 600">{{c.then}}</span>
+            <span style="font-size: 13px; font-weight: 500; color: {{c.thenInk}}">{{c.thenState}}</span>
+          </span>
+          <span style="color: #5B6270; font-size: 14px; flex: 1; min-width: 220px">{{c.why}}</span>
+        </div>
+      </sc-for>
+      <div style="color: #5B6270; font-size: 14px; border-top: 1px solid #EEF0F3; padding-top: 12px">No ordering constraint: {{independent}}</div>
+    </section>
+
+    <section aria-label="Compatibility matrix" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
+        <div>
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Compatibility matrix</h2>
+          <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Contract and integration tests for each release against what it connects to · select a cell for details</div>
+        </div>
+        <div role="group" aria-label="Filter integrations" style="display: flex; gap: 8px; flex-wrap: wrap">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="5">
+            <button onClick="{{f.pick}}" style="{{f.style}}">{{f.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="overflow-x: auto">
+        <div style="min-width: 1000px">
+          <div style="display: grid; grid-template-columns: 280px repeat(5, minmax(0, 1fr)); gap: 6px; padding: 0 0 8px; color: #5B6270; font-size: 13px; font-weight: 500">
+            <div>Integrates with</div>
+            <sc-for list="{{cols}}" as="c" hint-placeholder-count="5">
+              <div style="text-align: center"><span style="display: block; color: #16181D; font-weight: 600">{{c.name}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{c.build}}</span></div>
+            </sc-for>
+          </div>
+          <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+            <div style="padding: 12px 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6270; border-top: 1px solid #EEF0F3">{{g.label}}</div>
+            <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+              <div style="display: grid; grid-template-columns: 280px repeat(5, minmax(0, 1fr)); gap: 6px; align-items: center; padding: 3px 0">
+                <span style="display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-weight: 500">{{r.name}}</span>
+                  <span style="font-size: 12px; color: #5B6270">{{r.ver}}</span>
+                </span>
+                <sc-for list="{{r.cells}}" as="cell" hint-placeholder-count="5">
+                  <sc-if value="{{cell.live}}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{cell.pick}}" aria-pressed="{{cell.pressed}}" aria-label="{{cell.aria}}" style="{{cell.style}}">{{cell.label}}</button>
+                  </sc-if>
+                  <sc-if value="{{cell.na}}" hint-placeholder-val="{{ false }}">
+                    <span style="display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 6px; font-size: 13px; color: #6B7280; background: #F6F7F9">—</span>
+                  </sc-if>
+                </sc-for>
+              </div>
+            </sc-for>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #5B6270">
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 4px; background: #2457D6"></span>Verified</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 4px; background: #FDECEA; border: 1px solid #B42318; box-sizing: border-box"></span>Failing</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 4px; background: #FFF3E0; border: 1px solid #C26A00; box-sizing: border-box"></span>Warning</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 14px; height: 14px; border-radius: 4px; background: #FFFFFF; border: 1px dashed #8C93A0; box-sizing: border-box"></span>Not tested or blocked</span>
+        <span>— Does not integrate</span>
+      </div>
+    </section>
+
+    <section id="details" aria-label="Selected integration" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">{{sel.release}} with {{sel.point}}</h2>
+        <span style="font-size: 13px; font-weight: 600; color: {{sel.ink}}">{{sel.state}}</span>
+      </div>
+      <dl style="margin: 0; display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 8px 16px; font-size: 14px">
+        <dt style="color: #5B6270">Kind</dt><dd style="margin: 0">{{sel.kind}}</dd>
+        <dt style="color: #5B6270">Versions</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{sel.versions}}</dd>
+        <dt style="color: #5B6270">Tests</dt><dd style="margin: 0">{{sel.tests}}</dd>
+        <dt style="color: #5B6270">Last run</dt><dd style="margin: 0">{{sel.run}}</dd>
+        <dt style="color: #5B6270">Notes</dt><dd style="margin: 0">{{sel.note}}</dd>
+        <dt style="color: #5B6270">Jira</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{sel.jira}}</dd>
+      </dl>
+    </section>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1860}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'all', sel: 'bil28:ios' };
+  }
+  renderVals() {
+    const releases = [
+      { id: 'web', name: 'Web app 4.12', build: 'b1842' },
+      { id: 'ios', name: 'iOS 7.3', build: 'b905' },
+      { id: 'and', name: 'Android 7.3', build: 'b771' },
+      { id: 'bil', name: 'Billing API 2.8', build: 'b318' },
+      { id: 'edge', name: 'Edge firmware 2026.12', build: 'rc2' }
+    ];
+    // s: ok | fail | warn | todo | blocked; p/t = contract tests passed / total
+    const points = [
+      { id: 'bil28', group: 'svc', name: 'Billing API 2.8', ver: 'In flight · canary 10%', release: 'bil', cells: {
+        web: { s: 'ok', p: 24, t: 24, run: 'Today 14:05' },
+        ios: { s: 'fail', p: 17, t: 21, run: 'Today 13:52', note: 'iOS 7.3 still calls /v1/invoices, which Billing API 2.8 removes. Invoice history is empty in the app.', jira: 'IOS-388' },
+        and: { s: 'ok', p: 22, t: 22, run: 'Today 13:58' } } },
+      { id: 'bil27', group: 'svc', name: 'Billing API 2.7', ver: 'In production', cells: {
+        web: { s: 'warn', p: 23, t: 24, run: 'Today 14:05', note: 'Web app 4.12 needs /v2/invoices for the new invoice page; on 2.7 the page falls back to the old view.', jira: 'WEB-2304' },
+        ios: { s: 'ok', p: 21, t: 21, run: 'Today 13:52' },
+        and: { s: 'ok', p: 22, t: 22, run: 'Today 13:58' } } },
+      { id: 'idp', group: 'svc', name: 'Identity service 3.5', ver: 'In production', cells: {
+        web: { s: 'ok', p: 12, t: 12, run: 'Today 12:40' },
+        ios: { s: 'ok', p: 12, t: 12, run: 'Today 12:41' },
+        and: { s: 'warn', p: 11, t: 12, run: 'Today 12:43', note: 'Token refresh is retried twice in about 3% of sessions. Users stay signed in.', jira: 'AND-1201' },
+        bil: { s: 'ok', p: 8, t: 8, run: 'Today 12:30' },
+        edge: { s: 'ok', p: 6, t: 6, run: 'Yesterday 18:10' } } },
+      { id: 'gw52', group: 'svc', name: 'Device gateway 5.2', ver: 'In production', cells: {
+        edge: { s: 'ok', p: 14, t: 14, run: 'Yesterday 18:22' } } },
+      { id: 'gw60', group: 'svc', name: 'Device gateway 6.0', ver: 'Beta', cells: {
+        edge: { s: 'todo', p: 0, t: 14, run: 'Not run', note: 'Gateway 6.0 beta is not deployed to the lab yet.', jira: 'EDGE-430' } } },
+      { id: 'pay', group: 'partner', name: 'Payments partner API v3', ver: 'External · sandbox', cells: {
+        bil: { s: 'ok', p: 18, t: 18, run: 'Today 11:15' } } },
+      { id: 'push', group: 'partner', name: 'Push notification service', ver: 'External', cells: {
+        ios: { s: 'ok', p: 6, t: 6, run: 'Today 10:02' },
+        and: { s: 'ok', p: 6, t: 6, run: 'Today 10:04' } } },
+      { id: 'radio', group: 'hw', name: 'Partner radio unit', ver: 'Radio firmware 4.1', cells: {
+        edge: { s: 'blocked', p: 3, t: 5, run: 'Nov 14', note: 'Waiting on a second radio unit for the lab. Same issue as NET-06 on the hardware page.', jira: 'EDGE-409' } } },
+      { id: 'crypto', group: 'hw', name: 'Inline encryptor', ver: 'Crypto 5.1', cells: {
+        edge: { s: 'fail', p: 4, t: 5, run: 'Nov 15', note: 'Key failover takes 41 s against a 10 s target. Same issue as SEC-05 on the hardware page.', jira: 'EDGE-418' } } },
+      { id: 'modem', group: 'hw', name: 'Cellular modem module', ver: 'Modem firmware 2.3', cells: {
+        edge: { s: 'ok', p: 9, t: 9, run: 'Nov 15' } } }
+    ];
+    // a release that needs another release to ship first
+    const needs = [{ release: 'web', needs: 'bil', why: 'Web app 4.12 uses /v2/invoices, which only Billing API 2.8 serves.' }];
+
+    const look = {
+      ok: { label: 'Verified', ink: '#1F4FC4', css: 'background: #2457D6; color: #FFFFFF; border: 1px solid #2457D6' },
+      fail: { label: 'Failing', ink: '#B42318', css: 'background: #FDECEA; color: #B42318; border: 1px solid #B42318; font-weight: 600' },
+      warn: { label: 'Warning', ink: '#8A4B00', css: 'background: #FFF3E0; color: #8A4B00; border: 1px solid #C26A00; font-weight: 600' },
+      todo: { label: 'Not tested', ink: '#5B6270', css: 'background: #FFFFFF; color: #5B6270; border: 1px dashed #8C93A0' },
+      blocked: { label: 'Blocked', ink: '#8A4B00', css: 'background: #FFFFFF; color: #8A4B00; border: 1px dashed #C26A00; font-weight: 600' }
+    };
+    const rel = (id) => releases.find((r) => r.id === id);
+    const sum = { total: 0, ok: 0, fail: 0, warn: 0, todo: 0 };
+    const problems = [];
+    points.forEach((pt) => releases.forEach((r) => {
+      const c = pt.cells[r.id]; if (!c) return;
+      sum.total++;
+      if (c.s === 'ok') sum.ok++; else if (c.s === 'fail') sum.fail++; else if (c.s === 'warn') sum.warn++; else sum.todo++;
+      if (c.s === 'fail') problems.push({ pt: pt, r: r, c: c });
+    }));
+
+    // recommendation: a failing check against a release that others depend on holds that release
+    const red = { ink: '#B42318', bg: '#FDF3F2', border: '#F5C6C1' };
+    const amber = { ink: '#8A4B00', bg: '#FFF8EE', border: '#F2D6AE' };
+    const green = { ink: '#1F7A4D', bg: '#F1F8F4', border: '#BFDCCB' };
+    const held = {};
+    let rec;
+    const blocker = problems.find((x) => x.pt.release);
+    if (blocker) {
+      const provider = rel(blocker.pt.release);
+      held[provider.id] = true;
+      const waiting = needs.filter((n) => n.needs === provider.id).map((n) => rel(n.release));
+      waiting.forEach((w) => { held[w.id] = 'wait'; });
+      const others = problems.filter((x) => x !== blocker);
+      rec = Object.assign({
+        verdict: 'Hold ' + provider.name + ' at canary',
+        reason: blocker.r.name + ' fails ' + (blocker.c.t - blocker.c.p) + ' of ' + blocker.c.t + ' contract tests against it: ' + blocker.c.note,
+        action: 'Land ' + blocker.c.jira + ' in ' + blocker.r.name + ', then re-run the contract tests.' + (waiting.length ? ' ' + waiting.map((w) => w.name).join(', ') + ' waits too, because it needs ' + provider.name + ' first.' : '') + (others.length ? ' Also open: ' + others.map((o) => o.r.name + ' with ' + o.pt.name + ' (' + o.c.jira + ')').join('; ') + '.' : '')
+      }, red);
+    } else if (problems.length) {
+      rec = Object.assign({ verdict: 'Fix integrations before shipping', reason: problems.length + ' integration checks are failing.', action: 'See the failing cells below.' }, amber);
+    } else {
+      rec = Object.assign({ verdict: 'Integrations clear', reason: 'no integration check is failing.', action: 'Ship in the order shown.' }, green);
+    }
+
+    const stateOf = (id) => held[id] === true ? { s: 'Held: integration failing', ink: '#B42318', bg: '#FDF3F2' } : held[id] === 'wait' ? { s: 'Waiting on step 1', ink: '#8A4B00', bg: '#FFF8EE' } : { s: 'Ready', ink: '#1F7A4D', bg: '#F1F8F4' };
+    const chained = {};
+    const chains = needs.map((n) => {
+      chained[n.release] = chained[n.needs] = true;
+      const a = stateOf(n.needs), b = stateOf(n.release);
+      return { first: rel(n.needs).name, firstState: a.s, firstInk: a.ink, firstBg: a.bg, then: rel(n.release).name, thenState: b.s, thenInk: b.ink, thenBg: b.bg, why: n.why };
+    });
+
+    const f = this.state.filter;
+    const pill = (on) => 'min-height: 40px; padding: 8px 14px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; border: 1px solid ' + (on ? '#2457D6' : '#D5D9E0') + '; background: ' + (on ? '#2457D6' : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : '#16181D');
+    const filters = [
+      { id: 'all', label: 'All' }, { id: 'problems', label: 'Needs attention' },
+      { id: 'svc', label: 'Services' }, { id: 'partner', label: 'Partner products' }, { id: 'hw', label: 'Hardware' }
+    ].map((x) => ({ label: x.label, style: pill(x.id === f), pick: () => this.setState({ filter: x.id }) }));
+    const hasProblem = (pt) => Object.keys(pt.cells).some((k) => pt.cells[k].s !== 'ok');
+    const shown = points.filter((pt) => f === 'all' || (f === 'problems' ? hasProblem(pt) : pt.group === f));
+    const base = 'display: flex; align-items: center; justify-content: center; min-height: 44px; width: 100%; border-radius: 6px; font: inherit; font-size: 13px; cursor: pointer; ';
+
+    const groups = [{ id: 'svc', label: 'Services and APIs' }, { id: 'partner', label: 'Partner products' }, { id: 'hw', label: 'Hardware and modules' }]
+      .map((g) => ({
+        label: g.label,
+        rows: shown.filter((pt) => pt.group === g.id).map((pt) => ({
+          name: pt.name, ver: pt.ver,
+          cells: releases.map((r) => {
+            const c = pt.cells[r.id];
+            if (!c) return { na: true, live: false };
+            const key = pt.id + ':' + r.id, on = key === this.state.sel, L = look[c.s];
+            const label = c.s === 'ok' ? c.p + '/' + c.t + ' pass' : L.label;
+            return {
+              live: true, na: false, label: label, pressed: on ? 'true' : 'false',
+              aria: r.name + ' with ' + pt.name + ': ' + L.label,
+              style: base + L.css + (on ? '; outline: 3px solid #16181D; outline-offset: 1px' : ''),
+              pick: () => this.setState({ sel: key })
+            };
+          })
+        }))
+      })).filter((g) => g.rows.length);
+
+    const parts = this.state.sel.split(':');
+    const sp = points.find((p) => p.id === parts[0]) || points[0];
+    const sr = rel(parts[1]) || releases[0];
+    const sc = sp.cells[sr.id] || { s: 'todo', p: 0, t: 0, run: '' };
+    const kinds = { svc: 'Service or API', partner: 'Partner product', hw: 'Hardware module' };
+
+    return {
+      rec: rec,
+      sum: sum,
+      chains: chains,
+      independent: releases.filter((r) => !chained[r.id]).map((r) => r.name).join(', '),
+      filters: filters,
+      cols: releases,
+      groups: groups,
+      sel: {
+        release: sr.name, point: sp.name, state: look[sc.s].label, ink: look[sc.s].ink,
+        kind: kinds[sp.group], versions: sr.name + ' (' + sr.build + ') with ' + sp.name + ' · ' + sp.ver,
+        tests: sc.p + ' of ' + sc.t + ' contract tests pass',
+        run: sc.run, note: sc.note || 'No known issues.', jira: sc.jira || 'None'
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

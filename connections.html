@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Connections</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="morphdom.min.js"></script>
+<script src="dc-lite.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="index.html" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+        <a href="index.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Releases</a>
+        <a href="integrations.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
+        <a href="connections.html" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #EEF2FC; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
+      </nav>
+      <span title="Every number on this page is made up for the mockup." style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: #FFF3E0; color: #8A4B00; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C26A00"></span>Demo · simulated data</span>
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 32px 32px 64px; display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+      <div>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 600">Connections</h1>
+        <p style="margin: 6px 0 0; color: #5B6270">The tools Release Tool reads from, and what each one feeds. States below are examples: nothing is connected in the demo.</p>
+      </div>
+      <div role="group" aria-label="Filter connections" style="display: flex; gap: 8px; flex-wrap: wrap">
+        <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+          <button onClick="{{f.pick}}" style="{{f.style}}">{{f.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <section aria-label="Summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Connected</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #1F7A4D">{{sum.on}}</div>
+        <div style="color: #5B6270; font-size: 13px">of {{sum.total}} tools</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Need attention</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #8A4B00">{{sum.warn}}</div>
+        <div style="color: #5B6270; font-size: 13px">sync errors or expiring keys</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Not connected</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{sum.off}}</div>
+        <div style="color: #5B6270; font-size: 13px">features hidden until added</div>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="color: #5B6270; font-size: 13px">Events, last 24h</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{sum.events}}</div>
+        <div style="color: #5B6270; font-size: 13px">across connected tools</div>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; align-items: start">
+      <section aria-label="Tools" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px">
+        <sc-for list="{{tools}}" as="t" hint-placeholder-count="8">
+          <button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" aria-controls="tool-details" style="{{t.card}}">
+            <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%">
+              <span style="display: inline-flex; align-items: center; gap: 10px">
+                <span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 8px; background: #FFFFFF; border: 1px solid #E3E6EB; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; flex: none">
+                  <sc-if value="{{t.hasLogo}}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24"><path d="{{t.logo}}" fill="{{t.hex}}"></path></svg></sc-if>
+                  <sc-if value="{{t.noLogo}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M9 4h6M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM9 11l2 2 4-4M9 17h6" fill="none" stroke="#5B6270" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
+                </span>
+                <span style="font-weight: 600">{{t.name}}</span>
+              </span>
+              <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: {{t.ink}}"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.dot}}"></span>{{t.stateLabel}}</span>
+            </span>
+            <span style="font-size: 13px; color: #5B6270">{{t.category}}</span>
+            <span style="font-size: 14px">{{t.summary}}</span>
+            <span style="font-size: 13px; color: #5B6270">{{t.sync}}</span>
+          </button>
+        </sc-for>
+      </section>
+
+      <section id="tool-details" aria-label="Selected tool" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span style="display: inline-flex; align-items: center; gap: 12px">
+                <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 8px; background: #FFFFFF; border: 1px solid #E3E6EB; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; flex: none">
+                  <sc-if value="{{sel.hasLogo}}" hint-placeholder-val="{{ true }}"><svg width="26" height="26" viewBox="0 0 24 24"><path d="{{sel.logo}}" fill="{{sel.hex}}"></path></svg></sc-if>
+                  <sc-if value="{{sel.noLogo}}" hint-placeholder-val="{{ false }}"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M9 4h6M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM9 11l2 2 4-4M9 17h6" fill="none" stroke="#5B6270" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
+                </span>
+            <h2 style="margin: 0; font-size: 20px; font-weight: 600">{{sel.name}}</h2>
+          </span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: {{sel.ink}}"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{sel.dot}}"></span>{{sel.stateLabel}}</span>
+        </div>
+        <sc-if value="{{sel.hasAlert}}" hint-placeholder-val="{{ false }}">
+          <div style="background: #FFF8EE; border: 1px solid #F2D6AE; border-radius: 8px; padding: 10px 14px; font-size: 14px; color: #8A4B00">{{sel.alert}}</div>
+        </sc-if>
+        <div>
+          <div style="font-weight: 600; font-size: 14px">What it feeds</div>
+          <ul style="margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px">
+            <sc-for list="{{sel.feeds}}" as="x" hint-placeholder-count="3"><li>{{x}}</li></sc-for>
+          </ul>
+        </div>
+        <div>
+          <div style="font-weight: 600; font-size: 14px">Mapping</div>
+          <dl style="margin: 8px 0 0; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 6px 16px; font-size: 14px">
+            <sc-for list="{{sel.mapping}}" as="m" hint-placeholder-count="3">
+              <dt style="color: #5B6270">{{m.k}}</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{m.v}}</dd>
+            </sc-for>
+          </dl>
+        </div>
+        <dl style="margin: 0; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 6px 16px; font-size: 14px; border-top: 1px solid #EEF0F3; padding-top: 12px">
+          <dt style="color: #5B6270">Access</dt><dd style="margin: 0">{{sel.scope}}</dd>
+          <dt style="color: #5B6270">Sync</dt><dd style="margin: 0">{{sel.sync}}</dd>
+          <dt style="color: #5B6270">Events, 24h</dt><dd style="margin: 0">{{sel.events}}</dd>
+        </dl>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button type="button" disabled title="Not available in the demo" style="min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">{{sel.primary}}</button>
+          <button type="button" disabled title="Not available in the demo" style="min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">Sync now</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1070}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'all', sel: 'kibana' };
+  }
+  renderVals() {
+    const tools = [
+      { id: 'jira', logo: 'jira', name: 'Jira', category: 'Issues', state: 'on', events: 412, sync: 'Synced 1 min ago', summary: 'Open issues per fix version, burn-down charts, timeline events.',
+        feeds: ['Open Jira issues chart on each release', 'Jira column on Releases', 'Issue moves on the timeline', 'Failing tests linked to tickets'],
+        mapping: [{ k: 'Projects', v: 'WEB, IOS, AND, BILL, EDGE' }, { k: 'Release field', v: 'Fix version' }, { k: 'Blocker query', v: 'priority >= High' }], scope: 'Read only' },
+      { id: 'github', logo: 'github', name: 'GitHub', category: 'Code and builds', state: 'on', events: 1286, sync: 'Webhook · live', summary: 'Builds, merges, deploys and checks for each build in flight.',
+        feeds: ['Builds in flight and their stages', 'Build progress chart', 'Deploy events on the timeline', 'Change risk: PRs and files per build'],
+        mapping: [{ k: 'Repositories', v: 'web-app, ios-app, android-app, billing-api, edge-fw' }, { k: 'Build tag', v: 'b<number>, fw-<version>' }, { k: 'Environments', v: 'staging, canary, production' }], scope: 'Read only · webhooks' },
+      { id: 'datadog', logo: 'datadog', name: 'Datadog', category: 'Monitoring', state: 'on', events: 96, sync: 'Synced 30 s ago', summary: 'Error rates, latency and monitors per build version.',
+        feeds: ['Errors per hour chart', 'Error threshold behind the Hold / Ship recommendation', 'Monitor alerts on the timeline'],
+        mapping: [{ k: 'Version tag', v: 'version:<build>' }, { k: 'Services', v: 'web, billing-api, device-gateway' }, { k: 'Error threshold', v: '8 per hour' }], scope: 'Read only' },
+      { id: 'kibana', logo: 'elastic', name: 'Elastic / Kibana', category: 'Sessions and logs', state: 'warn', events: 18420, sync: 'Synced 4 min ago', summary: 'Signed-in user sessions per build, for testing depth.',
+        alert: 'The API key expires in 5 days. Renew it to keep session counts updating.',
+        feeds: ['User sessions per build chart', 'Sessions column on Releases', 'Testing depth: real users per build'],
+        mapping: [{ k: 'Index', v: 'rum-*' }, { k: 'Build field', v: 'service.version' }, { k: 'User field', v: 'user.id (hashed)' }], scope: 'Read only · API key' },
+      { id: 'notion', logo: 'notion', name: 'Notion', category: 'Docs', state: 'on', events: 7, sync: 'Synced 12 min ago', summary: 'Release notes and runbooks linked to each release.',
+        feeds: ['Release notes status on the timeline', 'Runbook link on each release'],
+        mapping: [{ k: 'Database', v: 'Release notes' }, { k: 'Match on', v: 'Release name' }], scope: 'Read only' },
+      { id: 'testrail', name: 'Test management', category: 'Testing', state: 'on', events: 209, sync: 'Synced 2 min ago', summary: 'Planned and executed test runs for the hardware matrix.',
+        feeds: ['Hardware coverage matrix', 'Planned, executed, passed, failed and blocked counts', 'Contract tests on Integrations'],
+        mapping: [{ k: 'Test plan', v: 'Edge firmware 2026.12' }, { k: 'Config field', v: 'Hardware config' }], scope: 'Read only' },
+      { id: 'pagerduty', logo: 'pagerduty', name: 'PagerDuty', category: 'Incidents', state: 'off', events: 0, sync: 'Not connected', summary: 'Incidents linked to the release and build that caused them.',
+        feeds: ['Incidents on the timeline', 'Open incident turns the recommendation to Hold', 'Release over release incident trend'],
+        mapping: [{ k: 'Services', v: 'Choose when connecting' }, { k: 'Build field', v: 'Custom field: build' }], scope: 'Read only' },
+      { id: 'slack', logo: 'slack', name: 'Slack', category: 'Notifications', state: 'off', events: 0, sync: 'Not connected', summary: 'Weekly digest and Hold / Ship changes posted to a channel.',
+        feeds: ['Weekly release digest', 'Message when a recommendation changes'],
+        mapping: [{ k: 'Channel', v: 'Choose when connecting' }], scope: 'Post messages only' }
+    ];
+    // Brand marks from Simple Icons (CC0 SVG paths); colors are each brand's own.
+    const logos = {
+      jira: { d: 'M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0Z', hex: '#0052CC' },
+      github: { d: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12', hex: '#181717' },
+      datadog: { d: 'M19.57 17.04l-1.997-1.316-1.665 2.782-1.937-.567-1.706 2.604.087.82 9.274-1.71-.538-5.794zm-8.649-2.498l1.488-.204c.241.108.409.15.697.223.45.117.97.23 1.741-.16.18-.088.553-.43.704-.625l6.096-1.106.622 7.527-10.444 1.882zm11.325-2.712l-.602.115L20.488 0 .789 2.285l2.427 19.693 2.306-.334c-.184-.263-.471-.581-.96-.989-.68-.564-.44-1.522-.039-2.127.53-1.022 3.26-2.322 3.106-3.956-.056-.594-.15-1.368-.702-1.898-.02.22.017.432.017.432s-.227-.289-.34-.683c-.112-.15-.2-.199-.319-.4-.085.233-.073.503-.073.503s-.186-.437-.216-.807c-.11.166-.137.48-.137.48s-.241-.69-.186-1.062c-.11-.323-.436-.965-.343-2.424.6.421 1.924.321 2.44-.439.171-.251.288-.939-.086-2.293-.24-.868-.835-2.16-1.066-2.651l-.028.02c.122.395.374 1.223.47 1.625.293 1.218.372 1.642.234 2.204-.116.488-.397.808-1.107 1.165-.71.358-1.653-.514-1.713-.562-.69-.55-1.224-1.447-1.284-1.883-.062-.477.275-.763.445-1.153-.243.07-.514.192-.514.192s.323-.334.722-.624c.165-.109.262-.178.436-.323a9.762 9.762 0 0 0-.456.003s.42-.227.855-.392c-.318-.014-.623-.003-.623-.003s.937-.419 1.678-.727c.509-.208 1.006-.147 1.286.257.367.53.752.817 1.569.996.501-.223.653-.337 1.284-.509.554-.61.99-.688.99-.688s-.216.198-.274.51c.314-.249.66-.455.66-.455s-.134.164-.259.426l.03.043c.366-.22.797-.394.797-.394s-.123.156-.268.358c.277-.002.838.012 1.056.037 1.285.028 1.552-1.374 2.045-1.55.618-.22.894-.353 1.947.68.903.888 1.609 2.477 1.259 2.833-.294.295-.874-.115-1.516-.916a3.466 3.466 0 0 1-.716-1.562 1.533 1.533 0 0 0-.497-.85s.23.51.23.96c0 .246.03 1.165.424 1.68-.039.076-.057.374-.1.43-.458-.554-1.443-.95-1.604-1.067.544.445 1.793 1.468 2.273 2.449.453.927.186 1.777.416 1.997.065.063.976 1.197 1.15 1.767.306.994.019 2.038-.381 2.685l-1.117.174c-.163-.045-.273-.068-.42-.153.08-.143.241-.5.243-.572l-.063-.111c-.348.492-.93.97-1.414 1.245-.633.359-1.363.304-1.838.156-1.348-.415-2.623-1.327-2.93-1.566 0 0-.01.191.048.234.34.383 1.119 1.077 1.872 1.56l-1.605.177.759 5.908c-.337.048-.39.071-.757.124-.325-1.147-.946-1.895-1.624-2.332-.599-.384-1.424-.47-2.214-.314l-.05.059a2.851 2.851 0 0 1 1.863.444c.654.413 1.181 1.481 1.375 2.124.248.822.42 1.7-.248 2.632-.476.662-1.864 1.028-2.986.237.3.481.705.876 1.25.95.809.11 1.577-.03 2.106-.574.452-.464.69-1.434.628-2.456l.714-.104.258 1.834 11.827-1.424zM15.05 6.848c-.034.075-.085.125-.007.37l.004.014.013.032.032.073c.14.287.295.558.552.696.067-.011.136-.019.207-.023.242-.01.395.028.492.08.009-.048.01-.119.005-.222-.018-.364.072-.982-.626-1.308-.264-.122-.634-.084-.757.068a.302.302 0 0 1 .058.013c.186.066.06.13.027.207m1.958 3.392c-.092-.05-.52-.03-.821.005-.574.068-1.193.267-1.328.372-.247.191-.135.523.047.66.511.382.96.638 1.432.575.29-.038.546-.497.728-.914.124-.288.124-.598-.058-.698m-5.077-2.942c.162-.154-.805-.355-1.556.156-.554.378-.571 1.187-.041 1.646.053.046.096.078.137.104a4.77 4.77 0 0 1 1.396-.412c.113-.125.243-.345.21-.745-.044-.542-.455-.456-.146-.749', hex: '#632CA6' },
+      elastic: { d: 'M20.345 16.33l-3.959-.926-1.05-2.01 5.177-4.535a3.962 3.962 0 012.559 3.702 4.006 4.006 0 01-2.727 3.77m-2.976 4.68c-.616 0-1.22-.207-1.714-.587l.782-4.077 3.596.841c.115.31.172.642.172.987a2.839 2.839 0 01-2.836 2.836m-2.637-.586a5.92 5.92 0 01-4.908 2.6A5.947 5.947 0 014 15.905l5.167-4.67 5.272 2.403 1.167 2.23zM.928 11.443a4.007 4.007 0 012.726-3.77l3.95.933.927 1.98-5.05 4.565a3.97 3.97 0 01-2.553-3.708m5.703-8.45a2.841 2.841 0 011.723.58l-.789 4.092-3.598-.85a2.842 2.842 0 01-.172-.986A2.84 2.84 0 016.63 2.992m2.66.59A5.92 5.92 0 0120.1 6.93c0 .4-.038.781-.114 1.164l-5.299 4.643-5.251-2.394-1.026-2.19zM24 12.571a4.723 4.723 0 00-3.124-4.454 6.695 6.695 0 00.126-1.29A6.789 6.789 0 0014.22.047 6.769 6.769 0 008.727 2.86a3.586 3.586 0 00-2.204-.754A3.604 3.604 0 003.15 6.959 4.786 4.786 0 000 11.431 4.727 4.727 0 003.139 15.9a6.876 6.876 0 00-.124 1.289 6.773 6.773 0 006.765 6.765c2.19 0 4.22-1.052 5.49-2.824a3.568 3.568 0 002.207.769 3.603 3.603 0 003.374-4.854A4.785 4.785 0 0024 12.572', hex: '#005571' },
+      notion: { d: 'M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.447-1.632z', hex: '#000000' },
+      pagerduty: { d: 'M16.965 1.18C15.085.164 13.769 0 10.683 0H3.73v14.55h6.926c2.743 0 4.8-.164 6.61-1.37 1.975-1.303 3.004-3.484 3.004-6.007 0-2.716-1.262-4.896-3.305-5.994zm-5.5 10.326h-4.21V3.113l3.977-.027c3.62-.028 5.43 1.234 5.43 4.128 0 3.113-2.248 4.292-5.197 4.292zM3.73 17.61h3.525V24H3.73Z', hex: '#06AC38' },
+      slack: { d: 'M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z', hex: '#4A154B' }
+    };
+    const look = {
+      on: { label: 'Connected', ink: '#1F7A4D', dot: '#1F7A4D', primary: 'Manage' },
+      warn: { label: 'Needs attention', ink: '#8A4B00', dot: '#C26A00', primary: 'Renew key' },
+      off: { label: 'Not connected', ink: '#5B6270', dot: '#B8BEC9', primary: 'Connect' }
+    };
+    const sum = { total: tools.length, on: 0, warn: 0, off: 0, events: 0 };
+    tools.forEach((t) => { sum[t.state]++; sum.events += t.events; });
+    sum.on += sum.warn; // needs attention is still connected
+    sum.events = sum.events.toLocaleString('en-US');
+
+    const f = this.state.filter;
+    const pill = (on) => 'min-height: 40px; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; border: 1px solid ' + (on ? '#2457D6' : '#D5D9E0') + '; background: ' + (on ? '#2457D6' : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : '#16181D');
+    const filters = [
+      { id: 'all', label: 'All' }, { id: 'on', label: 'Connected' }, { id: 'warn', label: 'Needs attention' }, { id: 'off', label: 'Not connected' }
+    ].map((x) => ({ label: x.label, style: pill(x.id === f), pick: () => this.setState({ filter: x.id }) }));
+    const shown = tools.filter((t) => f === 'all' || (f === 'on' ? t.state !== 'off' : t.state === f));
+    const s = tools.find((t) => t.id === this.state.sel) || tools[0];
+
+    return {
+      filters: filters,
+      sum: sum,
+      tools: shown.map((t) => {
+        const on = t.id === s.id, L = look[t.state];
+        return {
+          name: t.name, logo: t.logo ? logos[t.logo].d : '', hex: t.logo ? logos[t.logo].hex : '', hasLogo: !!t.logo, noLogo: !t.logo, category: t.category, summary: t.summary, sync: t.sync,
+          stateLabel: L.label, ink: L.ink, dot: L.dot, pressed: on ? 'true' : 'false',
+          pick: () => this.setState({ sel: t.id }),
+          card: 'display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 16px; border-radius: 12px; font: inherit; color: #16181D; text-align: left; cursor: pointer; background: ' + (on ? '#F3F6FD' : '#FFFFFF') + '; border: 1px ' + (t.state === 'off' ? 'dashed' : 'solid') + ' ' + (on ? '#2457D6' : '#E3E6EB')
+        };
+      }),
+      sel: {
+        name: s.name, logo: s.logo ? logos[s.logo].d : '', hex: s.logo ? logos[s.logo].hex : '', hasLogo: !!s.logo, noLogo: !s.logo, stateLabel: look[s.state].label, ink: look[s.state].ink, dot: look[s.state].dot, primary: look[s.state].primary,
+        hasAlert: !!s.alert, alert: s.alert || '', feeds: s.feeds, mapping: s.mapping, scope: s.scope, sync: s.sync,
+        events: s.events ? s.events.toLocaleString('en-US') : 'None'
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
