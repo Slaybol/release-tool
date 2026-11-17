@@ -24,7 +24,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
         <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         <span style="font-weight: 600; font-size: 17px">Release Tool</span>
       </a>
-      <span style="display: flex; align-items: center; gap: 8px; color: #5B6270; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F7A4D"></span>Live · updated {{ago}}s ago</span>
+      <span title="Every number on this page is made up for the mockup. Values change on a timer to show how live updates would look." style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: #FFF3E0; color: #8A4B00; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C26A00"></span>Demo · simulated data</span>
     </div>
   </header>
 
@@ -37,13 +37,23 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
           <h1 style="margin: 0; font-size: 28px; font-weight: 600">Web app 4.12</h1>
           <span style="padding: 4px 12px; border-radius: 999px; background: #FDECEA; color: #B42318; font-weight: 600; font-size: 13px">At risk</span>
         </div>
-        <p style="margin: 6px 0 0; color: #5B6270">Errors on b1842 are rising in staging. Target Oct 14 · Owner [RELEASE OWNER] · Sample data.</p>
+        <p style="margin: 6px 0 0; color: #5B6270">Errors on b1842 are rising in staging. Target Oct 14 · Owner: Web Platform team</p>
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none">Open in Jira</a>
-        <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none">Open in Kibana</a>
+        <button type="button" disabled title="Not connected yet: this integration is planned but not built in the demo" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">Open in Jira<span style="font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #EEF0F3; color: #5B6270">Not connected</span></button>
+        <button type="button" disabled title="Not connected yet: this integration is planned but not built in the demo" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">Open in Kibana<span style="font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #EEF0F3; color: #5B6270">Not connected</span></button>
       </div>
     </div>
+
+    <section aria-label="Release recommendation" style="background: {{rec.bg}}; border: 1px solid {{rec.border}}; border-left: 6px solid {{rec.ink}}; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+        <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {{rec.ink}}">Recommendation</span>
+        <span style="font-size: 20px; font-weight: 600; color: {{rec.ink}}">{{rec.verdict}}</span>
+      </div>
+      <div style="font-size: 15px"><span style="font-weight: 600">Why:</span> {{rec.reason}}</div>
+      <div style="font-size: 15px"><span style="font-weight: 600">Next:</span> {{rec.action}}</div>
+      <div style="color: #5B6270; font-size: 13px">{{rec.rule}}</div>
+    </section>
 
     <section aria-label="Builds in flight" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px">
       <sc-for list="{{builds}}" as="b" hint-placeholder-count="3">
@@ -58,11 +68,11 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
       </sc-for>
     </section>
 
-    <section aria-label="Live charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 16px">
+    <section aria-label="Charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 16px">
 
       <figure style="margin: 0; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
         <figcaption style="font-weight: 600">User sessions per build</figcaption>
-        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Real sessions by signed-in user, from Elastic · last 24h</div>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Sessions by signed-in user, as Elastic would report them · last 24h</div>
         <div style="display: flex; align-items: flex-end; gap: 24px; height: 180px; margin-top: 20px; padding: 0 8px; border-bottom: 1px solid #D5D9E0">
           <sc-for list="{{sessions}}" as="s" hint-placeholder-count="3">
             <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px">
@@ -145,7 +155,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
 
     <section aria-label="Timeline" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px">
       <button onClick="{{toggle}}" aria-expanded="{{openStr}}" style="width: 100%; min-height: 56px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; background: none; border: 0; font: inherit; font-weight: 600; color: #16181D; cursor: pointer; text-align: left">
-        <span>Timeline <span style="font-weight: 400; color: #5B6270">· 12 events, latest {{latest}}</span></span>
+        <span>Timeline <span style="font-weight: 400; color: #5B6270">· {{eventCount}} events, latest {{latest}}</span></span>
         <span style="color: #2457D6; font-weight: 500">{{toggleLabel}}</span>
       </button>
       <sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
@@ -181,6 +191,36 @@ class Component extends DCLogic {
   line(values, max) {
     return values.map((v, i) => (i ? 'L' : 'M') + (32 + i * 400 / (values.length - 1)).toFixed(1) + ' ' + (160 - v / max * 140).toFixed(1)).join(' ');
   }
+  // Release recommendation, derived from the same data the charts show.
+  // Rule: hold when the candidate's errors per hour exceed the threshold;
+  // otherwise wait while Jira issues are open; otherwise ship.
+  recommend(d) {
+    const ERR_THRESHOLD = 8;
+    const now = d.errNow[d.errNow.length - 1];
+    const base = Math.round(d.errPrev.reduce((a, b) => a + b, 0) / d.errPrev.length);
+    const fallback = d.builds.find((b) => b.state === 'Passed' && b.id !== d.candidate);
+    const rule = 'Hold if errors exceed ' + ERR_THRESHOLD + ' per hour · wait while Jira issues are open · otherwise ship. Derived from the simulated data on this page.';
+    const red = { ink: '#B42318', bg: '#FDF3F2', border: '#F5C6C1' };
+    const amber = { ink: '#8A4B00', bg: '#FFF8EE', border: '#F2D6AE' };
+    const green = { ink: '#1F7A4D', bg: '#F1F8F4', border: '#BFDCCB' };
+    if (now > ERR_THRESHOLD) {
+      return Object.assign({
+        verdict: 'Hold ' + d.candidate,
+        reason: 'errors are at ' + now + ' per hour, above the ' + ERR_THRESHOLD + ' per hour threshold' + (fallback ? ' (' + fallback.id + ' runs at about ' + base + ').' : '.'),
+        action: 'Investigate the regression in ' + d.candidate + (fallback ? '; ' + fallback.id + ' is available as a fallback.' : '.'),
+        rule: rule
+      }, red);
+    }
+    if (d.jiraOpen > 0) {
+      return Object.assign({
+        verdict: 'Wait on ' + d.candidate,
+        reason: 'errors are within threshold, but ' + d.jiraOpen + ' Jira issues are still open.',
+        action: 'Close or defer the open issues before the target date.',
+        rule: rule
+      }, amber);
+    }
+    return Object.assign({ verdict: 'Ship ' + d.candidate, reason: 'errors are within threshold and no Jira issues are open.', action: 'Promote ' + d.candidate + ' to production.', rule: rule }, green);
+  }
   renderVals() {
     const t = this.state.tick % 3;
     const s1842 = 412 + t * 7;
@@ -193,14 +233,24 @@ class Component extends DCLogic {
     const errNow = [2, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10 + t];
     const errPrev = [2, 3, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 2];
     const jira = [14, 14, 13, 12, 11, 10, 9, 8, 7, 6, 6];
+    const builds = [
+      { id: 'b1842', state: 'Errors rising', ink: '#B42318', where: 'Staging · merged Oct 10, 14:02', pct: '80%', bar: '#B42318' },
+      { id: 'b1840', state: 'Passed', ink: '#1F7A4D', where: 'Staging · held as fallback', pct: '100%', bar: '#1F7A4D' },
+      { id: 'b1838', state: 'Superseded', ink: '#5B6270', where: 'Retired from staging Oct 9', pct: '100%', bar: '#B8BEC9' }
+    ];
+    const events = [
+      { time: '14:31', source: 'Kibana', text: 'Error rate on b1842 passed 8 per hour; release marked At risk' },
+      { time: '14:02', source: 'GitHub', text: 'b1842 deployed to staging after checks passed' },
+      { time: '13:40', source: 'Jira', text: 'WEB-2291 moved to Done' },
+      { time: '11:15', source: 'Datadog', text: 'Checkout latency monitor recovered' },
+      { time: '09:20', source: 'Notion', text: 'Release notes draft updated' }
+    ];
+    const rec = this.recommend({ candidate: 'b1842', errNow: errNow, errPrev: errPrev, jiraOpen: jira[jira.length - 1], builds: builds });
     const jiraPath = jira.map((v, i) => (i ? 'L' : 'M') + (32 + i * 248 / (jira.length - 1)).toFixed(1) + ' ' + (160 - v / 14 * 140).toFixed(1)).join(' ');
     return {
       ago: this.state.ago,
-      builds: [
-        { id: 'b1842', state: 'Errors rising', ink: '#B42318', where: 'Staging · merged Oct 10, 14:02', pct: '80%', bar: '#B42318' },
-        { id: 'b1840', state: 'Passed', ink: '#1F7A4D', where: 'Staging · held as fallback', pct: '100%', bar: '#1F7A4D' },
-        { id: 'b1838', state: 'Superseded', ink: '#5B6270', where: 'Retired from staging Oct 9', pct: '100%', bar: '#B8BEC9' }
-      ],
+      rec: rec,
+      builds: builds,
       sessions: sessions.map((s) => ({ id: s.id, value: s.value, users: s.users, fill: s.fill, h: Math.round(s.value / maxS * 140) + 'px' })),
       errNow: this.line(errNow, 12),
       errPrev: this.line(errPrev, 12),
@@ -214,14 +264,9 @@ class Component extends DCLogic {
       openStr: this.state.open ? 'true' : 'false',
       toggleLabel: this.state.open ? 'Hide' : 'Show',
       toggle: () => this.setState({ open: !this.state.open }),
-      latest: '14:31',
-      events: [
-        { time: '14:31', source: 'Kibana', text: 'Error rate on b1842 passed 8 per hour; release marked At risk' },
-        { time: '14:02', source: 'GitHub', text: 'b1842 deployed to staging after checks passed' },
-        { time: '13:40', source: 'Jira', text: 'WEB-2291 moved to Done' },
-        { time: '11:15', source: 'Datadog', text: 'Checkout latency monitor recovered' },
-        { time: '09:20', source: 'Notion', text: 'Release notes draft updated' }
-      ]
+      latest: events[0].time,
+      eventCount: events.length,
+      events: events
     };
   }
 }

@@ -24,7 +24,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
         <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         <span style="font-weight: 600; font-size: 17px">Release Tool</span>
       </a>
-      <span style="display: flex; align-items: center; gap: 8px; color: #5B6270; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F7A4D"></span>Live · updated {{ago}}s ago</span>
+      <span title="Every number on this page is made up for the mockup. Values change on a timer to show how live updates would look." style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: #FFF3E0; color: #8A4B00; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C26A00"></span>Demo · simulated data</span>
     </div>
   </header>
 
@@ -37,46 +37,74 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
           <h1 style="margin: 0; font-size: 28px; font-weight: 600">Edge firmware 2026.12</h1>
           <span style="padding: 4px 12px; border-radius: 999px; background: #FFF3E0; color: #8A4B00; font-weight: 600; font-size: 13px">Watching</span>
         </div>
-        <p style="margin: 6px 0 0; color: #5B6270">Hardware test pass across 11 configurations and 7 OS versions. Target Dec 9 · Owner [RELEASE OWNER] · Sample data.</p>
+        <p style="margin: 6px 0 0; color: #5B6270">Hardware test pass across 11 configurations and 7 OS versions. Target Dec 9 · Owner: Edge Hardware team</p>
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
         <a href="#coverage" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none">Open test matrix</a>
-        <a href="#" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none">Open in Jira</a>
+        <button type="button" disabled title="Not connected yet: this integration is planned but not built in the demo" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">Open in Jira<span style="font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #EEF0F3; color: #5B6270">Not connected</span></button>
       </div>
     </div>
 
-    <section aria-label="Summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px">
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="color: #5B6270; font-size: 13px">Tests planned</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{tot.planned}}</div>
+    <section aria-label="Release recommendation" style="background: {{rec.bg}}; border: 1px solid {{rec.border}}; border-left: 6px solid {{rec.ink}}; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+        <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: {{rec.ink}}">Recommendation</span>
+        <span style="font-size: 20px; font-weight: 600; color: {{rec.ink}}">{{rec.verdict}}</span>
       </div>
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="color: #5B6270; font-size: 13px">Executed</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{tot.execPct}}</div>
-        <div style="color: #5B6270; font-size: 13px">{{tot.run}} of {{tot.planned}}</div>
+      <div style="font-size: 15px"><span style="font-weight: 600">Why:</span> {{rec.reason}}</div>
+      <div style="font-size: 15px"><span style="font-weight: 600">Next:</span> {{rec.action}}</div>
+      <div style="color: #5B6270; font-size: 13px">{{rec.rule}}</div>
+    </section>
+
+    <section aria-label="Summary" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px">
+        <div>
+          <div style="color: #5B6270; font-size: 13px">Planned</div>
+          <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{tot.planned}}</div>
+          <div style="color: #5B6270; font-size: 13px">tests in the matrix</div>
+        </div>
+        <div>
+          <div style="color: #5B6270; font-size: 13px">Executed</div>
+          <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{tot.run}}</div>
+          <div style="color: #5B6270; font-size: 13px">{{tot.execPct}} of planned · ran to a result</div>
+        </div>
+        <div>
+          <div style="color: #5B6270; font-size: 13px">Passed</div>
+          <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #1F4FC4">{{tot.pass}}</div>
+          <div style="color: #5B6270; font-size: 13px">{{tot.passPct}} of executed · {{tot.passOfPlanned}} of planned</div>
+        </div>
+        <a href="#failures" style="color: #16181D; text-decoration: none">
+          <div style="color: #5B6270; font-size: 13px">Failed</div>
+          <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #B42318">{{tot.fail}}</div>
+          <div style="color: #5B6270; font-size: 13px">executed, did not pass · <span style="color: #2457D6">see list</span></div>
+        </a>
+        <a href="#failures" style="color: #16181D; text-decoration: none">
+          <div style="color: #5B6270; font-size: 13px">Blocked</div>
+          <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #8A4B00">{{tot.blocked}}</div>
+          <div style="color: #5B6270; font-size: 13px">could not be executed · <span style="color: #2457D6">see list</span></div>
+        </a>
       </div>
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="color: #5B6270; font-size: 13px">Pass rate</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{tot.passPct}}</div>
-        <div style="color: #5B6270; font-size: 13px">of tests executed</div>
+      <div>
+        <div role="img" aria-label="{{tot.aria}}" style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #EEF0F3">
+          <div style="width: {{tot.passW}}; background: #2457D6"></div>
+          <div style="width: {{tot.failW}}; background: #B42318"></div>
+          <div style="width: {{tot.blockedW}}; background: #E0A040"></div>
+        </div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #5B6270; margin-top: 8px">
+          <span>{{tot.planned}} planned =</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #2457D6"></span>{{tot.pass}} passed</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B42318"></span>{{tot.fail}} failed</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #E0A040"></span>{{tot.blocked}} blocked</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #EEF0F3"></span>{{tot.notRun}} not run yet</span>
+          <span>· Executed = passed + failed.</span>
+        </div>
       </div>
-      <a href="#failures" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; color: #16181D; text-decoration: none">
-        <div style="color: #5B6270; font-size: 13px">Failing</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #B42318">{{tot.fail}}</div>
-        <div style="color: #2457D6; font-size: 13px">See failures</div>
-      </a>
-      <a href="#failures" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; color: #16181D; text-decoration: none">
-        <div style="color: #5B6270; font-size: 13px">Blocked</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #8A4B00">{{tot.blocked}}</div>
-        <div style="color: #2457D6; font-size: 13px">See blocked</div>
-      </a>
     </section>
 
     <section id="coverage" aria-label="Coverage by configuration" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
       <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
         <div>
           <h2 style="margin: 0; font-size: 17px; font-weight: 600">Coverage by configuration</h2>
-          <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Passed of planned, per test area · select a row for details</div>
+          <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Each cell shows passed / planned for that test area · select a row for details</div>
         </div>
         <div role="group" aria-label="Filter configurations" style="display: flex; gap: 8px; flex-wrap: wrap">
           <sc-for list="{{filters}}" as="f" hint-placeholder-count="6">
@@ -89,7 +117,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
           <div style="display: grid; grid-template-columns: 210px repeat(8, minmax(0, 1fr)) 150px; gap: 6px; padding: 0 0 8px; color: #5B6270; font-size: 13px; font-weight: 500">
             <div>Configuration</div>
             <sc-for list="{{cats}}" as="c" hint-placeholder-count="8"><div style="text-align: center">{{c}}</div></sc-for>
-            <div>Executed</div>
+            <div>Passed · executed</div>
           </div>
           <sc-for list="{{rows}}" as="r" hint-placeholder-count="11">
             <button onClick="{{r.pick}}" aria-controls="details" aria-pressed="{{r.pressed}}" style="{{r.rowStyle}}">
@@ -102,7 +130,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
               </sc-for>
               <span style="display: flex; flex-direction: column; gap: 6px">
                 <span style="font-size: 13px">{{r.execLabel}}</span>
-                <span style="display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #EEF0F3"><span style="width: {{r.passW}}; background: #2457D6"></span><span style="width: {{r.badW}}; background: #B42318"></span></span>
+                <span style="display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #EEF0F3"><span style="width: {{r.passW}}; background: #2457D6"></span><span style="width: {{r.failW}}; background: #B42318"></span><span style="width: {{r.blockedW}}; background: #E0A040"></span></span>
               </span>
             </button>
           </sc-for>
@@ -128,7 +156,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
           <dt style="color: #5B6270">OS</dt><dd style="margin: 0">{{sel.os}}</dd>
           <dt style="color: #5B6270">Firmware</dt><dd style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{sel.fw}}</dd>
           <dt style="color: #5B6270">Also supports</dt><dd style="margin: 0">{{sel.also}}</dd>
-          <dt style="color: #5B6270">Progress</dt><dd style="margin: 0">{{sel.execLabel}}, {{sel.passLabel}}</dd>
+          <dt style="color: #5B6270">Progress</dt><dd style="margin: 0">{{sel.passLabel}} · {{sel.execLabel}}</dd>
         </dl>
         <div style="border-top: 1px solid #EEF0F3; padding-top: 12px">
           <div style="font-weight: 600; font-size: 14px">Open problems</div>
@@ -151,14 +179,15 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
 
       <figure style="margin: 0; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
         <figcaption style="font-weight: 600">Progress by OS version</figcaption>
-        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Every configuration that ships each OS version</div>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">Passed of planned, across every configuration that ships each OS version</div>
         <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 20px">
           <sc-for list="{{osBars}}" as="o" hint-placeholder-count="7">
             <div style="display: grid; grid-template-columns: 170px minmax(0, 1fr) 72px; gap: 12px; align-items: center">
               <span style="font-size: 14px">{{o.name}}</span>
               <div style="display: flex; height: 18px; border-radius: 5px; overflow: hidden; background: #EEF0F3">
                 <div style="width: {{o.passW}}; background: #2457D6"></div>
-                <div style="width: {{o.badW}}; background: #B42318"></div>
+                <div style="width: {{o.failW}}; background: #B42318"></div>
+                <div style="width: {{o.blockedW}}; background: #E0A040"></div>
               </div>
               <span style="font-size: 13px; color: #5B6270; text-align: right">{{o.label}}</span>
             </div>
@@ -166,7 +195,8 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
         </div>
         <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #5B6270; margin-top: 16px">
           <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #2457D6"></span>Passed</span>
-          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B42318"></span>Failing or blocked</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B42318"></span>Failed</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #E0A040"></span>Blocked</span>
           <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #EEF0F3"></span>Not run</span>
         </div>
       </figure>
@@ -187,7 +217,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
             <a href="#details" onClick="{{i.pick}}" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{i.config}}</a>
             <span>{{i.os}}</span>
             <span style="font-weight: 500; color: {{i.ink}}">{{i.result}}</span>
-            <a href="#">{{i.jira}}</a>
+            <span title="Jira is not connected in the demo" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #5B6270">{{i.jira}}</span>
           </div>
         </sc-for>
       </div>
@@ -212,6 +242,35 @@ class Component extends DCLogic {
   }
   pct(a, b) {
     return b ? Math.round(a / b * 100) + '%' : '0%';
+  }
+  // bar widths: one decimal, so a single blocked test still shows up
+  w(a, b) {
+    return b ? (a / b * 100).toFixed(1) + '%' : '0%';
+  }
+  // Release recommendation, derived from the matrix: hold on any failed test,
+  // wait while tests are blocked or not yet run, otherwise ship.
+  recommend(built, issues, tot) {
+    const rc = 'fw-2026.12.0-rc2';
+    const fails = issues.filter((i) => i.result === 'Fail');
+    const blocked = issues.filter((i) => i.result === 'Blocked');
+    const done = built.filter((c) => !c.bad && c.run === c.planned_n).length;
+    const rule = 'Hold on any failed test · wait while tests are blocked or not run · otherwise ship. Derived from the simulated matrix on this page.';
+    if (fails.length) {
+      const cfgs = fails.map((i) => i.config).filter((v, k, a) => a.indexOf(v) === k);
+      return {
+        verdict: 'Hold ' + rc, ink: '#B42318', bg: '#FDF3F2', border: '#F5C6C1', rule: rule,
+        reason: fails.length + ' tests failed on ' + cfgs.join(', ') + (blocked.length ? ', and ' + blocked.length + ' more is blocked.' : '.'),
+        action: 'Fix ' + fails.map((i) => i.test + ' (' + i.jira + ')').join(', ') + (blocked.length ? ' and unblock ' + blocked.map((i) => i.test).join(', ') : '') + ' before cutting rc3. ' + done + ' of ' + built.length + ' configurations are already complete.'
+      };
+    }
+    const left = tot.planned - tot.run;
+    if (left > 0) {
+      return { verdict: 'Wait on ' + rc, ink: '#8A4B00', bg: '#FFF8EE', border: '#F2D6AE', rule: rule,
+        reason: 'no failures, but ' + left + ' planned tests have not been executed' + (blocked.length ? ' (' + blocked.length + ' blocked)' : '') + '.',
+        action: 'Finish the remaining runs before the Dec 9 target.' };
+    }
+    return { verdict: 'Ship ' + rc, ink: '#1F7A4D', bg: '#F1F8F4', border: '#BFDCCB', rule: rule,
+      reason: 'every planned test was executed and passed.', action: 'Promote ' + rc + ' to release.' };
   }
   renderVals() {
     const cats = ['Provisioning', 'Security', 'Networking', 'Compute', 'Power', 'Interop', 'Environ.', 'Perf.'];
@@ -239,14 +298,15 @@ class Component extends DCLogic {
     const tot = { planned: 0, run: 0, pass: 0, fail: 0, blocked: 0 };
     const byOs = {};
     const built = configs.map((c) => {
-      let planned = 0, run = 0, pass = 0, bad = 0;
+      let planned = 0, run = 0, pass = 0, bad = 0, fails = 0, blocks = 0;
       const cells = c.planned.map((p, k) => {
         const base = 'display: flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 6px; font-size: 13px; ';
         if (!p) return { label: '—', style: base + 'color: #6B7280; background: #F6F7F9' };
         const f = (c.fail && c.fail[k]) || 0, b = (c.blocked && c.blocked[k]) || 0;
+        // r = tests touched so far; blocked ones never ran, so executed = r - blocked
         const r = Math.max(Math.min(p, Math.round(p * c.prog)), f + b);
         const ok = r - f - b;
-        planned += p; run += r; pass += ok; bad += f + b;
+        planned += p; run += r - b; pass += ok; bad += f + b; fails += f; blocks += b;
         tot.fail += f; tot.blocked += b;
         if (f || b) return { label: ok + '/' + p + (f ? ' · fail' : ' · blocked'), style: base + 'background: #FDECEA; color: #B42318; font-weight: 600; border: 1px solid #B42318' };
         if (r === p) return { label: ok + '/' + p, style: base + 'background: #2457D6; color: #FFFFFF; font-weight: 500' };
@@ -255,11 +315,11 @@ class Component extends DCLogic {
       });
       tot.planned += planned; tot.run += run; tot.pass += pass;
       const osKey = c.id === 'GK-A' ? 'Host Linux 24.04 LTS' : c.os;
-      const o = byOs[osKey] || (byOs[osKey] = { planned: 0, pass: 0, bad: 0 });
-      o.planned += planned; o.pass += pass; o.bad += bad;
+      const o = byOs[osKey] || (byOs[osKey] = { planned: 0, pass: 0, fail: 0, blocked: 0 });
+      o.planned += planned; o.pass += pass; o.fail += fails; o.blocked += blocks;
       const state = bad ? (c.fail ? 'Failing' : 'Blocked') : (run === planned ? 'Complete' : (run ? 'In progress' : 'Not started'));
       const ink = bad ? (c.fail ? '#B42318' : '#8A4B00') : (run === planned ? '#1F7A4D' : '#5B6270');
-      return Object.assign({}, c, { cells: cells, planned_n: planned, run: run, pass: pass, bad: bad, state: state, ink: ink });
+      return Object.assign({}, c, { cells: cells, planned_n: planned, run: run, pass: pass, bad: bad, fails: fails, blocks: blocks, state: state, ink: ink });
     });
 
     const f = this.state.filter;
@@ -271,6 +331,7 @@ class Component extends DCLogic {
       { id: 'rbk', label: 'Radio Bridge Kit' }, { id: 'mts', label: 'Multi-Tenant Server' }, { id: 'gk', label: 'Go-Kit' }
     ].map((x) => ({ label: x.label, style: pill(x.id === f), pick: () => this.setState({ filter: x.id }) }));
 
+    const rec = this.recommend(built, issueList, tot);
     const selC = built.find((c) => c.id === this.state.selected) || built[0];
     const selIssues = issueList.filter((i) => i.config === selC.id);
     const osOrder = ['EdgeOS 3.2 LTS', 'EdgeOS 3.4', 'EdgeOS 4.0 (beta)', 'Host Linux 22.04 LTS', 'Host Linux 24.04 LTS', 'Hypervisor 8.0 U3', 'Hypervisor 9.0'];
@@ -279,13 +340,20 @@ class Component extends DCLogic {
       ago: this.state.ago,
       cats: cats,
       filters: filters,
-      tot: { planned: tot.planned, run: tot.run, fail: tot.fail, blocked: tot.blocked, execPct: this.pct(tot.run, tot.planned), passPct: this.pct(tot.pass, tot.run) },
+      rec: rec,
+      tot: {
+        planned: tot.planned, run: tot.run, pass: tot.pass, fail: tot.fail, blocked: tot.blocked,
+        notRun: tot.planned - tot.run - tot.blocked,
+        execPct: this.pct(tot.run, tot.planned), passPct: this.pct(tot.pass, tot.run), passOfPlanned: this.pct(tot.pass, tot.planned),
+        passW: this.w(tot.pass, tot.planned), failW: this.w(tot.fail, tot.planned), blockedW: this.w(tot.blocked, tot.planned),
+        aria: tot.planned + ' planned: ' + tot.pass + ' passed, ' + tot.fail + ' failed, ' + tot.blocked + ' blocked, ' + (tot.planned - tot.run - tot.blocked) + ' not run yet'
+      },
       rows: shown.map((c) => {
         const on = c.id === selC.id;
         return {
           id: c.id, product: c.product, os: c.os, cells: c.cells,
-          execLabel: c.run + ' of ' + c.planned_n + ' · ' + this.pct(c.run, c.planned_n),
-          passW: this.pct(c.pass, c.planned_n), badW: this.pct(c.bad, c.planned_n),
+          execLabel: c.pass + ' passed · ' + c.run + ' of ' + c.planned_n + ' executed',
+          passW: this.w(c.pass, c.planned_n), failW: this.w(c.fails, c.planned_n), blockedW: this.w(c.blocks, c.planned_n),
           pressed: on ? 'true' : 'false',
           pick: () => this.setState({ selected: c.id }),
           rowStyle: 'width: 100%; display: grid; grid-template-columns: 210px repeat(8, minmax(0, 1fr)) 150px; gap: 6px; align-items: center; padding: 8px; margin: 0 0 4px; border-radius: 8px; font: inherit; color: #16181D; cursor: pointer; text-align: left; border: 1px solid ' + (on ? '#2457D6' : 'transparent') + '; background: ' + (on ? '#F3F6FD' : '#FFFFFF')
@@ -294,13 +362,13 @@ class Component extends DCLogic {
       sel: {
         id: selC.id, desc: selC.desc, os: selC.os, fw: selC.fw, modules: selC.modules, also: selC.also,
         state: selC.state, ink: selC.ink,
-        execLabel: selC.run + ' of ' + selC.planned_n + ' executed',
+        execLabel: selC.run + ' of ' + selC.planned_n + ' executed' + (selC.fails ? ', ' + selC.fails + ' failed' : '') + (selC.blocks ? ', ' + selC.blocks + ' blocked' : ''),
         passLabel: selC.pass + ' passed',
         issues: selIssues, hasIssues: selIssues.length > 0, noIssues: selIssues.length === 0
       },
       osBars: osOrder.map((n) => {
         const o = byOs[n];
-        return { name: n, passW: this.pct(o.pass, o.planned), badW: this.pct(o.bad, o.planned), label: o.pass + '/' + o.planned };
+        return { name: n, passW: this.w(o.pass, o.planned), failW: this.w(o.fail, o.planned), blockedW: this.w(o.blocked, o.planned), label: o.pass + '/' + o.planned };
       }),
       issues: issueList.map((i) => Object.assign({}, i, { pick: () => this.setState({ selected: i.config, filter: 'all' }) }))
     };

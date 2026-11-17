@@ -29,7 +29,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
         
       </nav>
       <div style="display: flex; align-items: center; gap: 16px">
-        <span style="display: flex; align-items: center; gap: 8px; color: #5B6270; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F7A4D"></span>Live · updated {{ago}}s ago</span>
+        <span title="Every number on this page is made up for the mockup. Values change on a timer to show how live updates would look." style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: #FFF3E0; color: #8A4B00; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: #C26A00"></span>Demo · simulated data</span>
         <button aria-label="Your account" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #E3E6EB; background: #FFFFFF; font: inherit; font-weight: 600; color: #16181D; cursor: pointer">TS</button>
       </div>
     </div>
@@ -39,7 +39,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
     <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
       <div>
         <h1 style="margin: 0; font-size: 28px; font-weight: 600">Releases in flight</h1>
-        <p style="margin: 6px 0 0; color: #5B6270">Two releases need attention. Sample data.</p>
+        <p style="margin: 6px 0 0; color: #5B6270">Two releases need attention.</p>
       </div>
       <div role="group" aria-label="Filter releases" style="display: flex; gap: 8px; flex-wrap: wrap">
         <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
@@ -131,7 +131,7 @@ class Component extends DCLogic {
       { key: 'risk', href: 'release.html', status: 'At risk', name: 'Web app 4.12', builds: '3 builds in flight', latest: 'b1842 · staging', sessions: '412', s: [20, 34, 41, 38, 52, 61, 58, 70], errors: '37', errHigh: true, jira: '6 open', target: 'Oct 14' },
       { key: 'watch', status: 'Watching', name: 'iOS 7.3', builds: '2 builds in flight', latest: 'b905 · TestFlight', sessions: '286', s: [8, 12, 19, 22, 21, 30, 33, 35], errors: '9', errHigh: false, jira: '3 open', target: 'Oct 16' },
       { key: 'track', status: 'On track', name: 'Android 7.3', builds: '1 build in flight', latest: 'b771 · beta', sessions: '355', s: [10, 18, 25, 31, 40, 44, 47, 52], errors: '4', errHigh: false, jira: '1 open', target: 'Oct 16' },
-      { key: 'watch', status: 'Watching', name: 'Edge firmware 2026.12', builds: '11 hardware configs · 3 failing tests', latest: 'fw-2026.12.0-rc2 · lab', sessions: '64', s: [2, 5, 9, 14, 20, 26, 31, 37], errors: '3', errHigh: true, jira: '4 open', target: 'Dec 9', href: 'hardware.html' },
+      { key: 'watch', status: 'Watching', name: 'Edge firmware 2026.12', builds: '11 hardware configs · 3 failing, 1 blocked', latest: 'fw-2026.12.0-rc2 · lab', sessions: '64', s: [2, 5, 9, 14, 20, 26, 31, 37], errors: '3', errHigh: true, jira: '4 open', target: 'Dec 9', href: 'hardware.html' },
       { key: 'track', status: 'On track', name: 'Billing API 2.8', builds: '1 build in flight', latest: 'b318 · canary 10%', sessions: '233', s: [30, 29, 33, 31, 35, 34, 36, 38], errors: '2', errHigh: false, jira: '0 open', target: 'Oct 21' }
     ];
     const f = this.state.filter;
