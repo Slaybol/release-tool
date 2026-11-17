@@ -15,6 +15,9 @@
 <style>
 body{margin:0;background:#F6F7F9}
 a{color:#2457D6}a:hover{color:#1A3FA0}
+.rowlink{transition:background .12s}
+.rowlink:hover,.rowlink:focus-visible{background:#F3F6FD}
+.rowlink:hover .rowname{text-decoration:underline}
 </style>
 </helmet>
 <div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
@@ -40,7 +43,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
     <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
       <div>
         <h1 style="margin: 0; font-size: 28px; font-weight: 600">Releases in flight</h1>
-        <p style="margin: 6px 0 0; color: #5B6270">Two releases need attention.</p>
+        <p style="margin: 6px 0 0; color: #5B6270">Two releases need attention. Select a release marked Open to see its builds, charts and tests.</p>
       </div>
       <div role="group" aria-label="Filter releases" style="display: flex; gap: 8px; flex-wrap: wrap">
         <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
@@ -70,24 +73,25 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
     </section>
 
     <section aria-label="Releases" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; overflow-x: auto">
-      <div style="min-width: 920px">
-        <div style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #E3E6EB; color: #5B6270; font-size: 13px; font-weight: 500">
-          <div>Status</div><div>Release</div><div>Latest build</div><div>Sessions, 24h</div><div>Errors</div><div>Jira</div><div>Target</div>
+      <div style="min-width: 1020px">
+        <div style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px 104px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #E3E6EB; color: #5B6270; font-size: 13px; font-weight: 500">
+          <div>Status</div><div>Release</div><div>Latest build</div><div>Sessions, 24h</div><div>Errors</div><div>Jira</div><div>Target</div><div><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Details</span></div>
         </div>
         <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
           <sc-if value="{{r.linked}}" hint-placeholder-val="{{ true }}">
-          <a href="{{r.href}}" style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
+          <a href="{{r.href}}" class="rowlink" style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px 104px; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
             <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
-            <span><span style="display: block; font-weight: 600">{{r.name}}</span><span style="display: block; color: #5B6270; font-size: 13px">{{r.builds}}</span></span>
+            <span><span class="rowname" style="display: block; font-weight: 600; color: #2457D6">{{r.name}}</span><span style="display: block; color: #5B6270; font-size: 13px">{{r.builds}}</span></span>
             <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.latest}}</span>
             <span style="display: flex; align-items: center; gap: 10px"><svg width="80" height="24" viewBox="0 0 80 24" aria-hidden="true"><path d="{{r.spark}}" fill="none" stroke="#2457D6" stroke-width="1.75" stroke-linejoin="round"></path></svg><span style="font-size: 13px">{{r.sessions}}</span></span>
             <span style="color: {{r.errInk}}">{{r.errors}}</span>
             <span>{{r.jira}}</span>
             <span style="color: #5B6270">{{r.target}}</span>
+            <span style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; color: #2457D6; font-weight: 500; font-size: 14px">Open<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
           </a>
           </sc-if>
           <sc-if value="{{r.unlinked}}" hint-placeholder-val="{{ false }}">
-          <div title="No screen designed for this release yet" style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
+          <div title="No screen designed for this release yet" style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px 104px; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
             <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
             <span><span style="display: block; font-weight: 600">{{r.name}}</span><span style="display: block; color: #5B6270; font-size: 13px">{{r.builds}}</span></span>
             <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.latest}}</span>
@@ -95,6 +99,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
             <span style="color: {{r.errInk}}">{{r.errors}}</span>
             <span>{{r.jira}}</span>
             <span style="color: #5B6270">{{r.target}}</span>
+            <span style="text-align: right; color: #6B7280; font-size: 13px">No page yet</span>
           </div>
           </sc-if>
         </sc-for>
