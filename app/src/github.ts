@@ -14,6 +14,9 @@ export interface GitHubClient {
   generateNotes(o: { tag: string; sha: string; previousTag?: string }): Promise<string>;
   listReleaseBranches(): Promise<string[]>;
   latestSuccessfulRun(branch: string, workflowName: string): Promise<RunInfo | undefined>;
+  listArtifacts(runId: number): Promise<{ id: number; name: string }[]>;
+  downloadArtifact(id: number): Promise<Uint8Array>;
+  isPublished(repo: string, tag: string): Promise<boolean>;
 }
 
 export interface RunInfo { id: number; runNumber: number; url: string; sha: string; branch: string; actor: string; createdAt: string; workflowName: string }
@@ -78,5 +81,27 @@ export class OctokitGitHub implements GitHubClient {
     const run = data.workflow_runs.find((w) => w.name === workflowName);
     if (!run) return undefined;
     return { id: run.id, runNumber: run.run_number, url: run.html_url, sha: run.head_sha, branch, actor: run.triggering_actor?.login ?? run.actor?.login ?? 'unknown', createdAt: run.updated_at, workflowName: run.name ?? workflowName };
+  }
+
+  async listArtifacts(runId: number) {
+    const { data } = await this.gh.actions.listWorkflowRunArtifacts({ ...this.r, run_id: runId, per_page: 100 });
+    return data.artifacts.filter((a) => !a.expired).map((a) => ({ id: a.id, name: a.name }));
+  }
+
+  async downloadArtifact(id: number) {
+    const { data } = await this.gh.actions.downloadArtifact({ ...this.r, artifact_id: id, archive_format: 'zip' });
+    return new Uint8Array(data as ArrayBuffer);
+  }
+
+  // A dependency counts as shipped when that repository has a published, non-draft release with the tag.
+  async isPublished(repo: string, tag: string) {
+    const [owner, name] = repo.split('/');
+    try {
+      const { data } = await this.gh.repos.getReleaseByTag({ owner, repo: name, tag });
+      return !data.draft && !data.prerelease;
+    } catch (err: any) {
+      if (err?.status === 404) return false;
+      throw err;
+    }
   }
 }

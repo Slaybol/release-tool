@@ -35,24 +35,35 @@ class FakeGitHub implements GitHubClient {
   async latestPublishedTag() { return 'v4.11.2'; }
   async generateNotes(o: { tag: string; previousTag?: string }) { return `## What's Changed\n* ${o.previousTag}...${o.tag}`; }
   async listReleaseBranches() { return ['release/4.12', 'release/4.13']; }
+  artifacts = new Map<number, { id: number; name: string; zip: Uint8Array }[]>();
+  published = new Set<string>();
+  async listArtifacts(runId: number) { return (this.artifacts.get(runId) ?? []).map(({ id, name }) => ({ id, name })); }
+  async downloadArtifact(id: number) { return [...this.artifacts.values()].flat().find((a) => a.id === id)!.zip; }
+  async isPublished(repo: string, tag: string) { return this.published.has(`${repo}@${tag}`); }
   async latestSuccessfulRun(branch: string) {
     return branch === 'release/4.13' ? { id: 900, runNumber: 1900, url: 'https://github.test/runs/900', sha: 'sha4130', branch, actor: 'dev', createdAt: '2026-11-18T10:00:00Z', workflowName: 'Build' } : undefined;
   }
 }
 
-const cfg = { productName: 'Web app', buildWorkflow: 'Build', testEnvironments: ['qa', 'staging'], releaseOwners: ['slaybol'] };
+export const cfg = {
+  productName: 'Web app', buildWorkflow: 'Build', testEnvironments: ['qa', 'staging'], releaseOwners: ['slaybol'],
+  soakEnvironment: 'staging', jiraProject: 'WEB', jiraBaseUrl: 'https://jira.test',
+  gates: { testTargetPct: 90, errorThreshold: 8, soakHours: 0, dependencies: [] as { name: string; repo: string; tag: string }[] }
+};
 let delivery = 0;
+export const clock = { now: '2026-11-18T12:00:00.000Z' };
 
 function setup() {
   const gh = new FakeGitHub();
   const store = new MemoryStore();
-  const flow = new ReleaseFlow(cfg, gh, store, () => '2026-11-18T12:00:00.000Z');
+  const flow = new ReleaseFlow(cfg, gh, store, () => clock.now);
   const send = (name: string, payload: any) => flow.handleWebhook(name, `d${++delivery}`, payload);
   const build = (runNumber: number, sha: string, branch = 'release/4.12', extra: any = {}) => send('workflow_run', {
     action: 'completed',
     workflow_run: { id: runNumber * 10, run_number: runNumber, name: 'Build', conclusion: 'success', head_branch: branch, head_sha: sha, html_url: `https://github.test/runs/${runNumber}`, actor: { login: 'dev' }, updated_at: '2026-11-18T11:00:00Z', ...extra }
   });
   const deploy = (sha: string, environment: string) => send('deployment_status', { deployment_status: { state: 'success' }, deployment: { sha, environment } });
+  clock.now = '2026-11-18T12:00:00.000Z';
   return { gh, store, flow, send, build, deploy };
 }
 
@@ -75,6 +86,7 @@ describe('build pickup', () => {
     const rel = [...gh.releases.values()][0];
     expect(rel).toMatchObject({ tag: 'v4.12.0-rc.1', draft: true, prerelease: false, sha: 'sha1838' });
     expect(rel.body).toContain('v4.11.2...v4.12.0-rc.1');
+    expect(rel.body).toContain('<!-- release-tool:changes -->');
     expect(rel.body).toContain('[b1838](https://github.test/runs/1838)');
   });
 
@@ -156,10 +168,16 @@ describe('GitHub release lifecycle', () => {
     expect(flow.state.releases.get('4.12')!.deployments).toHaveLength(1);
   });
 
-  it('lets a release owner ship: final version tag, not a pre-release, marked latest', async () => {
+  it('lets a release owner ship a ready release: final version tag, not a pre-release, marked latest', async () => {
     const { flow, gh, build, deploy } = setup();
     await build(1838, 'sha1838');
     await deploy('sha1838', 'qa');
+    await expect(flow.ship('4.12', 'Slaybol')).rejects.toThrow(/not ready to ship/);
+    await deploy('sha1838', 'staging');
+    await flow.recordTests('4.12', { source: 'actions', buildId: 'b1838', label: 'Build run 1838', results: [{ testId: 'a', name: 'a', outcome: 'pass', durationMs: 5, at: 'x' }] });
+    await flow.recordJira('4.12', []);
+    await flow.recordTelemetry('4.12', 'b1838', { users: 3, sessions: 4, sessionHours: 1, errorsPerHour: 1 });
+    expect(flow.readinessOf(flow.state.releases.get('4.12')!).status).toBe('ready');
     await expect(flow.ship('4.12', 'someone')).rejects.toBeInstanceOf(ForbiddenError);
     await flow.ship('4.12', 'Slaybol');
     const rel = [...gh.releases.values()][0];
@@ -180,7 +198,7 @@ describe('environments, replay and reconcile', () => {
     await build(1840, 'sha1840');
     await deploy('sha1840', 'qa');
     await deploy('sha1838', 'staging');
-    const v = releasesView(flow.state, '2026-11-18T14:00:00.000Z');
+    const v = releasesView(flow, '2026-11-18T14:00:00.000Z', { jira: false, zephyr: false, telemetry: false, jiraProject: 'WEB' });
     expect(v.inFlight[0].environments).toEqual([
       { name: 'qa', build: 'b1840', since: '2026-11-18T12:00:00.000Z' },
       { name: 'staging', build: 'b1838', since: '2026-11-18T12:00:00.000Z' }
@@ -194,7 +212,7 @@ describe('environments, replay and reconcile', () => {
     await build(1838, 'sha1838');
     await deploy('sha1838', 'qa');
     await build(1840, 'sha1840');
-    const again = new ReleaseFlow(cfg, gh, store);
+    const again = new ReleaseFlow(cfg, gh, store, () => clock.now);
     expect(again.state.releases.get('4.12')).toEqual(flow.state.releases.get('4.12'));
   });
 
@@ -216,5 +234,174 @@ describe('webhook signature', () => {
     expect(verifySignature('s3cret', body, sig)).toBe(true);
     expect(verifySignature('other', body, sig)).toBe(false);
     expect(verifySignature('s3cret', body, undefined)).toBe(false);
+  });
+});
+
+// ---------------- phases 2 to 5 ----------------
+import { readFileSync } from 'node:fs';
+import { strToU8, zipSync } from 'fflate';
+import { planFromWorkbook, coverage } from '../src/matrix.ts';
+import { parse, editedOnGitHub } from '../src/notes.ts';
+import { parseJUnit } from '../src/junit.ts';
+import { DemoIssues, DemoManualTests, DemoTelemetry } from '../src/integrations/demo.ts';
+import { pollOnce } from '../src/poller.ts';
+import { releaseDetail } from '../src/view.ts';
+
+const workbook = new Uint8Array(readFileSync(new URL('./fixtures/edge-hardware-test-matrix.xlsx', import.meta.url)));
+const plan = planFromWorkbook(workbook, 'edge-hardware-test-matrix.xlsx', '2026-11-18T00:00:00Z');
+const latestBody = (gh: FakeGitHub) => [...gh.releases.values()].at(-1)!.body;
+
+describe('test matrix import', () => {
+  it('reads configurations, tests and planned cells from the workbook', () => {
+    expect(plan.configs.map((c) => c.id)).toEqual(['PN1-A', 'PN1-B', 'PN1-C', 'FC6-A', 'FC6-B', 'FC6-C', 'RBK-A', 'RBK-B', 'MTS-A', 'MTS-B', 'GK-A']);
+    expect(plan.configs[0]).toMatchObject({ os: 'EdgeOS 3.2 LTS', product: 'PN-1', description: 'Pocket Node, base' });
+    expect(plan.tests).toHaveLength(31);
+    expect(plan.tests[0]).toEqual({ id: 'PRV-01', category: 'Provisioning', name: 'Zero-touch enrollment with management server' });
+    // R and S cells are planned, O and — are not. Matches the workbook's own Execution Tracker (209 rows).
+    expect(plan.cells).toHaveLength(209);
+    expect(plan.cells.find((c) => c.testId === 'PRV-03' && c.configId === 'PN1-A')).toBeUndefined(); // optional
+    expect(plan.cells.find((c) => c.testId === 'NET-01' && c.configId === 'PN1-A')?.level).toBe('Smoke');
+  });
+
+  it('computes coverage from the latest result of each cell', () => {
+    const at = (m: number) => `2026-11-18T12:0${m}:00Z`;
+    const cov = coverage(plan, [
+      { source: 'zephyr', buildId: 'b1', label: 'c', at: at(0), results: [
+        { testId: 'PRV-01', name: '', configId: 'PN1-A', outcome: 'fail', durationMs: 1, at: at(1) },
+        { testId: 'PRV-02', name: '', configId: 'PN1-A', outcome: 'blocked', durationMs: 1, at: at(1) }
+      ] },
+      { source: 'zephyr', buildId: 'b1', label: 'c', at: at(2), results: [{ testId: 'PRV-01', name: '', configId: 'PN1-A', outcome: 'pass', durationMs: 1, at: at(2) }] }
+    ])!;
+    expect(cov).toMatchObject({ planned: 209, pass: 1, fail: 0, blocked: 1, executed: 1, notRun: 207 });
+    expect(cov.problems).toEqual([{ testId: 'PRV-02', name: 'Clean OS install / image flash', configId: 'PN1-A', outcome: 'blocked', issue: undefined }]);
+  });
+});
+
+describe('GitHub Actions test results', () => {
+  it('parses JUnit and attaches test-results artifacts from any workflow to the build by commit', async () => {
+    const xml = '<testsuites><testsuite><testcase classname="checkout" name="pays" time="0.25"/><testcase classname="checkout" name="refunds" time="1"><failure message="x"/></testcase><testcase name="later"><skipped/></testcase></testsuite></testsuites>';
+    expect(parseJUnit(xml, 't').map((r) => [r.testId, r.outcome, r.durationMs])).toEqual([['checkout › pays', 'pass', 250], ['checkout › refunds', 'fail', 1000], ['later', 'skipped', 0]]);
+    const { flow, gh, build, send } = setup();
+    await build(1838, 'sha1838');
+    gh.artifacts.set(77, [{ id: 5, name: 'test-results-e2e', zip: zipSync({ 'junit.xml': strToU8(xml) }) }, { id: 6, name: 'site', zip: zipSync({}) }]);
+    const e2e = { action: 'completed', workflow_run: { id: 77, run_number: 9, name: 'E2E', conclusion: 'failure', head_branch: 'release/4.12', head_sha: 'sha1838', updated_at: 't' } };
+    await send('workflow_run', e2e);
+    await send('workflow_run', e2e); // a second delivery of the same run adds nothing
+    const r = flow.state.releases.get('4.12')!;
+    expect(r.testRuns).toHaveLength(1);
+    expect(r.testRuns[0]).toMatchObject({ source: 'actions', buildId: 'b1838', label: 'E2E run 9' });
+    expect(flow.readinessOf(r).gates.find((g) => g.id === 'automated')).toMatchObject({ state: 'fail', detail: '1 of 3 automated tests failed' });
+  });
+});
+
+describe('release notes', () => {
+  it('writes marked sections and refreshes known issues when Jira changes', async () => {
+    const { flow, gh, build } = setup();
+    await build(1838, 'sha1838');
+    await flow.recordJira('4.12', [{ key: 'WEB-1', summary: 'Checkout fails', type: 'Bug', priority: 'Highest', status: 'To Do', blocker: true, url: 'https://jira.test/browse/WEB-1' }]);
+    const s = parse(latestBody(gh));
+    expect(Object.keys(s)).toEqual(['header', 'highlights', 'changes', 'known-issues', 'facts']);
+    expect(s['known-issues']).toContain('[WEB-1](https://jira.test/browse/WEB-1) Checkout fails **(blocker)**');
+    expect(s.facts).toContain('1 build on `release/4.12`');
+  });
+
+  it('retries the notes refresh on the next Jira poll if GitHub was down', async () => {
+    const { flow, gh, build } = setup();
+    await build(1838, 'sha1838');
+    const bug = { key: 'WEB-1', summary: 'Checkout fails', type: 'Bug', priority: 'Highest', status: 'To Do', blocker: true, url: 'https://jira.test/browse/WEB-1' };
+    const real = gh.getReleaseBody.bind(gh);
+    gh.getReleaseBody = async () => { throw new Error('GitHub down'); };
+    await expect(flow.recordJira('4.12', [bug])).rejects.toThrow('GitHub down');
+    gh.getReleaseBody = real;
+    await flow.recordJira('4.12', [bug]);
+    expect(parse(latestBody(gh))['known-issues']).toContain('WEB-1');
+  });
+
+  it('keeps a section edited on GitHub, and carries it to the next build', async () => {
+    const { flow, gh, build } = setup();
+    await build(1838, 'sha1838');
+    const rel = [...gh.releases.values()][0];
+    rel.body = rel.body.replace(/_No highlights yet[^_]*_/, 'Faster checkout for everyone.');
+    expect(editedOnGitHub(rel.body, flow.state.releases.get('4.12')!.notes.generated)).toHaveProperty('highlights');
+    await build(1840, 'sha1840');
+    expect(parse(latestBody(gh)).highlights).toBe('## Highlights\n\nFaster checkout for everyone.');
+    expect(flow.state.releases.get('4.12')!.notes.locked.highlights.by).toBe('GitHub');
+  });
+
+  it('takes edits from the tool, can unlock them, and refuses tool-owned sections', async () => {
+    const { flow, gh, build } = setup();
+    await build(1838, 'sha1838');
+    await flow.editNotes('4.12', 'highlights', '## Highlights\n\nNew invoices.', 'Toby');
+    expect(parse(latestBody(gh)).highlights).toBe('## Highlights\n\nNew invoices.');
+    await flow.editNotes('4.12', 'highlights', null, 'Toby');
+    expect(parse(latestBody(gh)).highlights).toContain('No highlights yet');
+    await expect(flow.editNotes('4.12', 'facts', 'x', 'Toby')).rejects.toBeInstanceOf(ForbiddenError);
+  });
+
+  it('links Jira keys of the configured project in the changes, and nothing else', async () => {
+    const { gh, build } = setup();
+    gh.generateNotes = async () => "## What's Changed\n* WEB-12 fix checkout by @dev in #4\n* Use UTF-8 everywhere";
+    await build(1838, 'sha1838');
+    const changes = parse(latestBody(gh)).changes;
+    expect(changes).toContain('[WEB-12](https://jira.test/browse/WEB-12) fix checkout');
+    expect(changes).toContain('Use UTF-8 everywhere');
+  });
+});
+
+describe('readiness gates and the demo story', () => {
+  it('goes Blocked on rc.1, then Ready on rc.2, and ships with release facts', async () => {
+    const { flow, gh, build, deploy } = setup();
+    const now = () => clock.now;
+    const sources = { jira: new DemoIssues('WEB', 'https://jira.test', 20, now), zephyr: new DemoManualTests(20, now), telemetry: new DemoTelemetry(now) };
+    await flow.importMatrix(plan);
+    await build(1838, 'sha1838');
+    await deploy('sha1838', 'qa');
+    await deploy('sha1838', 'staging');
+    clock.now = '2026-11-18T12:30:00.000Z'; // 30 minutes into testing: every planned test has run
+    await pollOnce(flow, sources, gh, cfg);
+    let r = flow.state.releases.get('4.12')!;
+    let ready = flow.readinessOf(r);
+    expect(ready.status).toBe('blocked');
+    expect(ready.reason).toMatch(/1 blocker open: WEB-\d+/);
+    expect(ready.gates.find((g) => g.id === 'tests')).toMatchObject({ state: 'fail', detail: '2 matrix tests failed' });
+    expect(ready.gates.find((g) => g.id === 'errors')!.state).toBe('fail');
+    await expect(flow.ship('4.12', 'Slaybol')).rejects.toThrow(/not ready to ship: 1 blocker/);
+
+    await build(1840, 'sha1840');
+    await deploy('sha1840', 'qa');
+    await deploy('sha1840', 'staging');
+    await pollOnce(flow, sources, gh, cfg);
+    r = flow.state.releases.get('4.12')!;
+    expect(flow.readinessOf(r).status).toBe('testing'); // rc.2's matrix pass has just started
+    clock.now = '2026-11-18T13:00:00.000Z';
+    await pollOnce(flow, sources, gh, cfg);
+    expect(flow.readinessOf(r).gates.find((g) => g.id === 'automated')!.state).toBe('pending');
+    await flow.recordTests('4.12', { source: 'actions', buildId: 'b1840', label: 'Build run 1840', results: [{ testId: 't', name: 't', outcome: 'pass', durationMs: 1, at: 'x' }] });
+    ready = flow.readinessOf(r);
+    expect(ready).toMatchObject({ status: 'ready', reason: 'Every readiness gate passes' });
+
+    const detail = releaseDetail(flow, '4.12', clock.now, { jira: false, zephyr: false, telemetry: false, jiraProject: 'WEB' })!;
+    expect(detail.matrix!.configs).toHaveLength(11);
+    expect(detail.lanes.lanes.map((l) => l.name)).toEqual(['qa', 'staging']);
+    expect(detail.lanes.lanes[0].bars.map((b) => [b.build, b.current])).toEqual([['b1838', false], ['b1840', true]]);
+
+    await flow.ship('4.12', 'Slaybol');
+    const shipped = [...gh.releases.values()].find((x) => x.tag === 'v4.12.0')!;
+    expect(shipped.latest).toBe(true);
+    expect(parse(shipped.body).facts).toMatch(/209 of 209 planned matrix tests passed; 11 of 11 configurations complete[\s\S]*Shipped by Slaybol/);
+  });
+
+  it('blocks on a dependency until it is published on GitHub', async () => {
+    const { flow, gh, build, deploy } = setup();
+    const deps = { ...cfg, gates: { ...cfg.gates, dependencies: [{ name: 'Billing API 2.8', repo: 'acme/billing', tag: 'v2.8.0' }] } };
+    const f = new ReleaseFlow(deps, gh, new MemoryStore(), () => clock.now);
+    await f.handleWebhook('workflow_run', 'dep1', { action: 'completed', workflow_run: { id: 1, run_number: 1, name: 'Build', conclusion: 'success', head_branch: 'release/4.12', head_sha: 's1' } });
+    await f.handleWebhook('deployment_status', 'dep2', { deployment_status: { state: 'success' }, deployment: { sha: 's1', environment: 'qa' } });
+    await pollOnce(f, { jira: { live: false, issues: async () => [] }, zephyr: { live: false, results: async () => null }, telemetry: { live: false, read: async () => null } }, gh, deps);
+    expect(f.readinessOf(f.state.releases.get('4.12')!)).toMatchObject({ status: 'blocked', reason: 'Waiting on Billing API 2.8' });
+    gh.published.add('acme/billing@v2.8.0');
+    await pollOnce(f, { jira: { live: false, issues: async () => [] }, zephyr: { live: false, results: async () => null }, telemetry: { live: false, read: async () => null } }, gh, deps);
+    expect(f.readinessOf(f.state.releases.get('4.12')!).status).toBe('testing');
+    void flow; void build; void deploy;
   });
 });

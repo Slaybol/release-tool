@@ -11,11 +11,13 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "import-matrix": "tsx scripts/import-matrix.ts"
   },
   "dependencies": {
     "@octokit/auth-app": "^8.3.1",
-    "@octokit/rest": "^22.0.1"
+    "@octokit/rest": "^22.0.1",
+    "fflate": "^0.8.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

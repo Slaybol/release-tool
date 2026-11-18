@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Release · Release Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/morphdom.min.js"></script>
+<script src="/dc-lite.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+.rowlink:hover{background:#F3F6FD}.rowlink:hover .rowname{text-decoration:underline}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+.rowlink{transition:background .12s}
+.rowlink:hover,.rowlink:focus-visible{background:#F3F6FD}
+.rowlink:hover .rowname{text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="/" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+        <a href="/" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #EEF2FC; color: #16181D; text-decoration: none; font-weight: 500">Releases</a>
+        <a href="https://slaybol.github.io/release-tool/integrations.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
+        <a href="https://slaybol.github.io/release-tool/connections.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 16px">
+        <span title="{{liveTitle}}" style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: {{liveBg}}; color: {{liveInk}}; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{liveDot}}"></span>{{liveLabel}}</span>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 24px 32px 64px; display: flex; flex-direction: column; gap: 24px">
+    <a href="/" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; text-decoration: none; font-weight: 500"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>All releases</a>
+
+    <sc-if value="{{missing}}" hint-placeholder-val="{{ false }}">
+      <p style="margin: 0; color: #5B6270">{{missingText}}</p>
+    </sc-if>
+
+    <sc-if value="{{loaded}}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 600">{{r.name}}</h1>
+          <span style="padding: 4px 12px; border-radius: 999px; background: {{pill.bg}}; color: {{pill.ink}}; font-weight: 600; font-size: 13px">{{pill.label}}</span>
+        </div>
+        <p style="margin: 6px 0 0; color: #5B6270">{{r.reason}}. Candidate <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{candidateText}}</span> on <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.branch}}</span>.</p>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <a href="{{ghUrl}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none; font-weight: 500">Open GitHub release</a>
+        <button type="button" onClick="{{openShip}}" title="{{shipTitle}}" style="{{shipStyle}}">{{shipLabel}}</button>
+      </div>
+    </div>
+
+    <sc-if value="{{shipOpen}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Ship" style="background: #FFFFFF; border: 1px solid #BFDCCB; border-radius: 12px; padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #5B6270">Release owner
+          <select onChange="{{pickActor}}" style="min-height: 40px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 8px; font: inherit; color: #16181D">
+            <sc-for list="{{owners}}" as="o" hint-placeholder-count="2"><option value="{{o.value}}">{{o.value}}</option></sc-for>
+          </select>
+        </label>
+        <sc-if value="{{tokenRequired}}" hint-placeholder-val="{{ true }}">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #5B6270">Admin token
+            <input type="password" onInput="{{typeToken}}" value="{{token}}" style="min-height: 40px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 8px; font: inherit">
+          </label>
+        </sc-if>
+        <button type="button" onClick="{{confirmShip}}" style="min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: #1F7A4D; color: #FFFFFF; font: inherit; font-weight: 600; cursor: pointer">Publish {{shipVersion}} on GitHub</button>
+        <span style="color: #5B6270; font-size: 13px">{{shipMsg}}</span>
+      </section>
+    </sc-if>
+
+    <section aria-label="Readiness" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Readiness gates</h2>
+        <span style="color: #5B6270; font-size: 13px">Status comes from these. Blocked: a blocker bug or dependency. At risk: failures or errors. Ready: all pass.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 16px">
+        <sc-for list="{{gates}}" as="g" hint-placeholder-count="6">
+          <div style="border: 1px solid {{g.border}}; background: {{g.bg}}; border-radius: 10px; padding: 12px 14px">
+            <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600; font-size: 14px">{{g.label}}</span><span style="font-size: 12px; font-weight: 600; color: {{g.ink}}">{{g.stateLabel}}</span></div>
+            <div style="color: #3D4350; font-size: 13px; margin-top: 4px">{{g.detail}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Builds" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+      <sc-for list="{{builds}}" as="b" hint-placeholder-count="3">
+        <div style="background: #FFFFFF; border: 1px solid {{b.border}}; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+            <a href="{{b.runUrl}}" style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{b.id}}</a>
+            <span style="font-size: 12px; font-weight: 600; color: {{b.ink}}">{{b.role}}</span>
+          </div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{b.version}}</div>
+          <div style="color: #5B6270; font-size: 13px">{{b.where}}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section aria-label="Environments" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Time in each environment</h2>
+        <span style="color: #5B6270; font-size: 13px">{{laneRange}} · from GitHub deployments</span>
+      </div>
+      <sc-if value="{{noLanes}}" hint-placeholder-val="{{ false }}"><p style="margin: 12px 0 0; color: #5B6270">No deployments yet.</p></sc-if>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px">
+        <sc-for list="{{lanes}}" as="l" hint-placeholder-count="2">
+          <div style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center">
+            <span style="font-weight: 600; font-size: 14px">{{l.name}}</span>
+            <div style="position: relative; height: 28px; border-radius: 6px; background: #F1F3F6">
+              <sc-for list="{{l.bars}}" as="b" hint-placeholder-count="2">
+                <div title="{{b.title}}" style="position: absolute; top: 3px; bottom: 3px; left: {{b.left}}; width: {{b.width}}; border-radius: 4px; background: {{b.fill}}; color: {{b.text}}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 22px; padding: 0 6px; overflow: hidden; white-space: nowrap; box-sizing: border-box">{{b.label}}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="GitHub release and notes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; align-items: start">
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">GitHub release</h2>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+          <a href="{{ghUrl}}" style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500">{{ghTag}}</a>
+          <span style="padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: {{ghPill.bg}}; color: {{ghPill.ink}}">{{ghPill.label}}</span>
+        </div>
+        <ol aria-label="Release stages" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px">
+          <sc-for list="{{ghSteps}}" as="s" hint-placeholder-count="3">
+            <li style="display: flex; flex-direction: column; gap: 6px">
+              <span style="height: 6px; border-radius: 3px; background: {{s.bar}}"></span>
+              <span style="font-size: 14px; font-weight: {{s.weight}}; color: {{s.ink}}">{{s.label}}</span>
+              <span style="font-size: 12px; color: #5B6270">{{s.when}}</span>
+            </li>
+          </sc-for>
+        </ol>
+        <div style="border-top: 1px solid #EEF0F3; padding-top: 12px">
+          <div style="font-size: 13px; font-weight: 600; color: #5B6270; margin-bottom: 6px">Closed when replaced</div>
+          <sc-if value="{{noHistory}}" hint-placeholder-val="{{ false }}"><div style="color: #5B6270; font-size: 13px">None yet</div></sc-if>
+          <sc-for list="{{history}}" as="h" hint-placeholder-count="2">
+            <div style="display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; padding: 4px 0; font-size: 13px">
+              <a href="{{h.url}}" style="font-family: 'IBM Plex Mono', monospace">{{h.tag}}</a>
+              <span style="color: #5B6270">{{h.note}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Release notes</h2>
+          <span style="color: #5B6270; font-size: 13px">Rebuilt for each build · edited sections are kept</span>
+        </div>
+        <sc-for list="{{notes}}" as="n" hint-placeholder-count="4">
+          <div style="border-top: 1px solid #EEF0F3; padding-top: 10px">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+              <span style="font-size: 14px; font-weight: 600">{{n.title}} <span style="font-size: 12px; font-weight: 500; color: {{n.tagInk}}">{{n.tag}}</span></span>
+              <sc-if value="{{n.editable}}" hint-placeholder-val="{{ true }}">
+                <span style="display: flex; gap: 6px">
+                  <sc-if value="{{n.canUnlock}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{n.unlock}}" style="min-height: 32px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 6px; background: #FFFFFF; font: inherit; font-size: 13px; cursor: pointer">Use generated</button></sc-if>
+                  <button type="button" onClick="{{n.edit}}" style="min-height: 32px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 6px; background: #FFFFFF; font: inherit; font-size: 13px; cursor: pointer">Edit</button>
+                </span>
+              </sc-if>
+            </div>
+            <sc-if value="{{n.editing}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+                <textarea aria-label="Edit {{n.title}}" onInput="{{typeNote}}" rows="8" style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #D5D9E0; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{draft}}</textarea>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+                  <button type="button" onClick="{{saveNote}}" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 6px; background: #2457D6; color: #FFFFFF; font: inherit; font-weight: 600; cursor: pointer">Save to GitHub</button>
+                  <button type="button" onClick="{{cancelNote}}" style="min-height: 36px; padding: 0 14px; border: 1px solid #D5D9E0; border-radius: 6px; background: #FFFFFF; font: inherit; cursor: pointer">Cancel</button>
+                  <span style="color: #5B6270; font-size: 13px">{{noteMsg}}</span>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{n.showing}}" hint-placeholder-val="{{ true }}">
+              <div style="white-space: pre-wrap; font-size: 13px; line-height: 1.5; color: #3D4350; margin-top: 6px; max-height: 220px; overflow: auto">{{n.text}}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Tests" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; overflow-x: auto">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Test matrix on {{candidateId}}</h2>
+        <span style="color: #5B6270; font-size: 13px">{{matrixNote}}</span>
+      </div>
+      <sc-if value="{{hasMatrix}}" hint-placeholder-val="{{ true }}">
+        <div style="min-width: 900px; margin-top: 16px">
+          <div style="display: grid; grid-template-columns: {{mcols}}; gap: 6px; font-size: 12px; color: #5B6270; font-weight: 500; padding-bottom: 6px">
+            <span>Configuration</span>
+            <sc-for list="{{categories}}" as="c" hint-placeholder-count="5"><span style="text-align: center">{{c}}</span></sc-for>
+            <span style="text-align: right">Passed</span>
+          </div>
+          <sc-for list="{{mrows}}" as="m" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: {{mcols}}; gap: 6px; align-items: center; padding: 4px 0; border-top: 1px solid #EEF0F3">
+              <span style="font-size: 13px"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{m.id}}</span> <span style="color: #5B6270">{{m.os}}</span></span>
+              <sc-for list="{{m.cells}}" as="c" hint-placeholder-count="5">
+                <span style="text-align: center; padding: 4px 0; border-radius: 4px; font-size: 12px; background: {{c.bg}}; color: {{c.ink}}">{{c.label}}</span>
+              </sc-for>
+              <span style="text-align: right; font-size: 13px">{{m.label}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{hasProblems}}" hint-placeholder-val="{{ false }}">
+        <h3 style="margin: 16px 0 6px; font-size: 14px">Failing and blocked</h3>
+        <sc-for list="{{problems}}" as="p" hint-placeholder-count="2">
+          <div style="display: grid; grid-template-columns: 80px minmax(0, 1fr) 80px 80px; gap: 12px; font-size: 13px; padding: 4px 0; border-top: 1px solid #EEF0F3">
+            <span style="font-family: 'IBM Plex Mono', monospace">{{p.testId}}</span><span>{{p.name}}</span><span style="font-family: 'IBM Plex Mono', monospace">{{p.configId}}</span><span style="color: {{p.ink}}; font-weight: 600">{{p.outcome}}</span>
+          </div>
+        </sc-for>
+      </sc-if>
+      <div style="margin-top: 16px; color: #3D4350; font-size: 13px">{{autoNote}}</div>
+      <sc-for list="{{autoFailures}}" as="f" hint-placeholder-count="1"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #B42318">✕ {{f.testId}}</div></sc-for>
+      <div style="margin-top: 8px; color: #5B6270; font-size: 13px">{{runsNote}}</div>
+    </section>
+
+    <section aria-label="Jira and sessions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; align-items: start">
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Jira, fix version {{r.line}}</h2>
+          <span style="color: #5B6270; font-size: 13px">{{jiraNote}}</span>
+        </div>
+        <sc-for list="{{issues}}" as="i" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; gap: 10px; font-size: 13px; padding: 6px 0; border-top: 1px solid #EEF0F3; color: {{i.textInk}}">
+            <a href="{{i.url}}" style="font-family: 'IBM Plex Mono', monospace">{{i.key}}</a>
+            <span>{{i.summary}} <span style="color: {{i.tagInk}}; font-weight: 600">{{i.tag}}</span></span>
+            <span style="text-align: right; color: #5B6270">{{i.status}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Real use of {{candidateId}}</h2>
+          <span style="color: #5B6270; font-size: 13px">{{telNote}}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px">
+          <sc-for list="{{tel}}" as="t" hint-placeholder-count="4">
+            <div><div style="color: #5B6270; font-size: 13px">{{t.label}}</div><div style="font-size: 24px; font-weight: 600; color: {{t.ink}}">{{t.value}}</div></div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.line = location.pathname.split('/').pop();
+    this.state = { data: null, settings: null, error: '', live: false, editing: '', draft: '', noteMsg: '', shipOpen: false, actor: '', token: '', shipMsg: '' };
+    try { this.state.token = sessionStorage.getItem('rt-token') || ''; } catch (e) {}
+  }
+  componentDidMount() {
+    this.load();
+    fetch('/api/settings').then((r) => r.json()).then((s) => this.setState({ settings: s, actor: s.owners[0] || '' }));
+    const es = new EventSource('/api/stream');
+    es.addEventListener('change', () => this.load());
+    es.onopen = () => this.setState({ live: true });
+    es.onerror = () => this.setState({ live: false });
+  }
+  load() {
+    fetch('/api/releases/' + this.line).then((r) => r.json().then((j) => ({ ok: r.ok, j: j })))
+      .then((x) => this.setState(x.ok ? { data: x.j, error: '' } : { error: x.j.error }))
+      .catch((e) => this.setState({ error: String(e) }));
+  }
+  send(method, url, body) {
+    const headers = { 'content-type': 'application/json' };
+    if (this.state.token) headers.authorization = 'Bearer ' + this.state.token;
+    return fetch(url, { method: method, headers: headers, body: JSON.stringify(body) }).then((r) => r.json().then((j) => { if (!r.ok) throw new Error(j.error); return j; }));
+  }
+  hours(h) {
+    if (h < 1) return Math.round(h * 60) + 'm';
+    if (h < 48) return Math.floor(h) + 'h ' + Math.round((h % 1) * 60) + 'm';
+    return Math.floor(h / 24) + 'd ' + Math.floor(h % 24) + 'h';
+  }
+  label(env) { return env.length <= 3 ? env.toUpperCase() : env.charAt(0).toUpperCase() + env.slice(1); }
+  renderVals() {
+    const d = this.state.data;
+    const live = this.state.live;
+    const base = {
+      liveLabel: live ? 'Live' : 'Reconnecting', liveTitle: live ? 'Updates arrive as GitHub and the integrations report them' : 'Lost the live connection; retrying',
+      liveBg: live ? '#E7F4EC' : '#FFF3E0', liveInk: live ? '#1F7A4D' : '#8A4B00', liveDot: live ? '#1F7A4D' : '#C26A00',
+      loaded: !!d, missing: !d, missingText: this.state.error || 'Loading…'
+    };
+    if (!d) return base;
+    const tone = {
+      building: { bg: '#EEF0F3', ink: '#5B6270', label: 'Building' }, testing: { bg: '#FFF3E0', ink: '#8A4B00', label: 'Testing' },
+      'at-risk': { bg: '#FDECEA', ink: '#B42318', label: 'At risk' }, blocked: { bg: '#FDECEA', ink: '#B42318', label: 'Blocked' },
+      ready: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Ready' }, shipped: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Shipped' }
+    };
+    const gate = { pass: { bg: '#F1F8F4', border: '#BFDCCB', ink: '#1F7A4D', label: 'Pass' }, fail: { bg: '#FDF3F2', border: '#F5C6C1', ink: '#B42318', label: 'Fail' }, pending: { bg: '#FFFFFF', border: '#E3E6EB', ink: '#8A4B00', label: 'Waiting' } };
+    const ghs = { draft: { bg: '#EEF0F3', ink: '#5B6270', label: 'Draft' }, prerelease: { bg: '#FFF3E0', ink: '#8A4B00', label: 'Pre-release' }, released: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Released' } };
+    const s = this.state.settings || { owners: [], tokenRequired: false };
+    const ready = d.status === 'ready';
+    const g = d.githubRelease;
+    const order = ['draft', 'prerelease', 'released'];
+    const at = g ? order.indexOf(g.state) : -1;
+    const steps = [['Draft', 'Created when the build finished'], ['Pre-release', 'When the candidate reached a test environment'], ['Released', 'When a release owner ships']].map((x, i) => ({
+      label: x[0], when: x[1], bar: i < at ? '#1F7A4D' : i === at ? (i === 2 ? '#1F7A4D' : '#C26A00') : '#EEF0F3', ink: i <= at ? '#16181D' : '#5B6270', weight: i === at ? '600' : '400'
+    }));
+    const cov = d.matrix;
+    const lanes = d.lanes.lanes.map((l) => ({
+      name: this.label(l.name),
+      bars: l.bars.map((b) => ({ left: b.left.toFixed(2) + '%', width: b.width.toFixed(2) + '%', label: b.build + ' · ' + this.hours(b.hours), title: b.build + ' in ' + l.name + ' for ' + this.hours(b.hours) + (b.current ? ' (now)' : ''), fill: b.candidate ? '#2457D6' : '#C9D6F5', text: b.candidate ? '#FFFFFF' : '#1A3FA0' }))
+    }));
+    const notes = d.notes.map((n) => ({
+      title: n.title, editable: n.editable, canUnlock: !!n.locked, text: n.text.replace(/^## [^\n]*\n+/, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*/g, '').replace(/`/g, '').replace(/^_(.*)_$/gm, '$1').replace(/^[*-] /gm, '• '),
+      tag: n.locked ? 'Edited by ' + n.locked.by + ' · kept' : n.editable ? 'Generated' : 'Written by the tool', tagInk: n.locked ? '#1F7A4D' : '#5B6270',
+      editing: this.state.editing === n.id, showing: this.state.editing !== n.id,
+      edit: () => this.setState({ editing: n.id, draft: n.text, noteMsg: '' }),
+      unlock: () => this.send('PUT', '/api/releases/' + d.line + '/notes/' + n.id, { text: null, actor: this.state.actor || 'Release Tool' }).then(() => this.load()).catch((e) => this.setState({ noteMsg: e.message }))
+    }));
+    const t = d.telemetry;
+    const issues = d.jiraIssues.map((i) => {
+      const done = /done|closed|resolved/i.test(i.status);
+      return { key: i.key, url: i.url, summary: i.summary, status: i.status, tag: i.blocker ? 'Blocker' : (/bug/i.test(i.type) ? '' : i.type), tagInk: i.blocker ? '#B42318' : '#5B6270', textInk: done ? '#8C93A0' : '#16181D' };
+    });
+    const demo = (live) => (live ? 'live' : 'simulated demo data');
+    const a = d.tests.automated;
+    return Object.assign(base, {
+      r: d,
+      pill: tone[d.status],
+      candidateId: d.candidate ? d.candidate.id : 'no build',
+      candidateText: d.candidate ? d.candidate.version + ' (' + d.candidate.id + ')' : 'none yet',
+      ghUrl: g ? g.url : '#', ghTag: g ? g.tag : 'None yet', ghPill: g ? ghs[g.state] : ghs.draft,
+      ghSteps: steps,
+      noHistory: d.supersededReleases.length === 0,
+      history: d.supersededReleases.map((h) => ({ tag: h.tag, url: h.url, note: h.state === 'draft' ? 'Draft deleted (' + h.buildId + ')' : 'Pre-release marked superseded, tag kept (' + h.buildId + ')' })),
+      shipOpen: this.state.shipOpen && ready,
+      shipLabel: d.status === 'shipped' ? 'Shipped' : 'Ship',
+      shipTitle: ready ? 'Publish the GitHub release as latest' : 'Ship unlocks when every readiness gate passes',
+      shipStyle: 'min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; color: #FFFFFF; background: ' + (ready ? '#1F7A4D' : '#C4C9D2') + '; cursor: ' + (ready ? 'pointer' : 'not-allowed'),
+      openShip: () => { if (ready) this.setState({ shipOpen: !this.state.shipOpen, shipMsg: '' }); },
+      owners: s.owners.map((o) => ({ value: o })),
+      tokenRequired: s.tokenRequired,
+      token: this.state.token,
+      pickActor: (e) => this.setState({ actor: e.target.value }),
+      typeToken: (e) => { this.state.token = e.target.value; try { sessionStorage.setItem('rt-token', e.target.value); } catch (x) {} },
+      shipVersion: d.candidate ? d.candidate.version.replace(/-rc\.\d+$/, '') : '',
+      shipMsg: this.state.shipMsg,
+      confirmShip: () => this.send('POST', '/api/releases/' + d.line + '/ship', { actor: this.state.actor }).then(() => this.setState({ shipOpen: false })).catch((e) => this.setState({ shipMsg: e.message })),
+      gates: d.gates.map((x) => ({ label: x.label, detail: x.detail, stateLabel: gate[x.state].label, bg: gate[x.state].bg, border: gate[x.state].border, ink: gate[x.state].ink })),
+      builds: d.builds.map((b) => ({ id: b.id, runUrl: b.runUrl, version: b.version, role: b.candidate ? 'Candidate' : 'Replaced', ink: b.candidate ? '#2457D6' : '#5B6270', border: b.candidate ? '#2457D6' : '#E3E6EB', where: b.envs.length ? 'In ' + b.envs.map((e) => this.label(e)).join(', ') : 'Not deployed now' })),
+      noLanes: lanes.length === 0, lanes: lanes,
+      laneRange: 'Since ' + new Date(d.lanes.start).toLocaleString(),
+      notes: notes, draft: this.state.draft, noteMsg: this.state.noteMsg,
+      typeNote: (e) => { this.state.draft = e.target.value; },
+      cancelNote: () => this.setState({ editing: '' }),
+      saveNote: () => this.send('PUT', '/api/releases/' + d.line + '/notes/' + this.state.editing, { text: this.state.draft, actor: this.state.actor || 'Release Tool' }).then(() => { this.setState({ editing: '' }); this.load(); }).catch((e) => this.setState({ noteMsg: e.message })),
+      hasMatrix: !!cov,
+      matrixNote: cov ? 'Plan imported from ' + cov.source + ' · results from Zephyr (' + demo(d.sources.zephyr) + ')' : 'No test matrix imported yet',
+      categories: cov ? cov.categories : [],
+      mcols: '210px repeat(' + (cov ? cov.categories.length : 1) + ', minmax(0, 1fr)) 80px',
+      mrows: cov ? cov.configs.map((c) => ({
+        id: c.id, os: c.os, label: c.pass + ' / ' + c.planned,
+        cells: c.cells.map((x) => x.planned === 0 ? { label: '—', bg: '#FFFFFF', ink: '#8C93A0' } : { label: x.pass + '/' + x.planned, bg: x.bad ? '#FDECEA' : x.pass === x.planned ? '#E7F4EC' : x.pass ? '#FFF3E0' : '#F1F3F6', ink: x.bad ? '#B42318' : x.pass === x.planned ? '#1F7A4D' : '#3D4350' })
+      })) : [],
+      hasProblems: !!(cov && cov.problems.length),
+      problems: cov ? cov.problems.map((p) => ({ testId: p.testId, name: p.name, configId: p.configId, outcome: p.outcome === 'fail' ? 'Failed' : 'Blocked', ink: p.outcome === 'fail' ? '#B42318' : '#8A4B00' })) : [],
+      autoNote: a.total ? 'GitHub Actions: ' + a.pass + ' of ' + a.total + ' automated tests passed on this build.' : 'GitHub Actions: no test-results artifacts for this build yet.',
+      autoFailures: d.automatedFailures,
+      runsNote: d.testRuns.length ? d.testRuns.length + ' test runs recorded, ' + d.testRuns.reduce((x, y) => x + y.count, 0) + ' results, ' + this.hours(d.testRuns.reduce((x, y) => x + y.effortHours, 0)) + ' of test time.' : 'No test runs recorded yet.',
+      jiraNote: d.jira.synced ? d.jira.open + (d.jira.open === 1 ? ' open bug · ' : ' open bugs · ') + demo(d.sources.jira) : 'Waiting for Jira',
+      issues: issues,
+      telNote: 'Elastic, by service.version · ' + demo(d.sources.telemetry),
+      tel: [
+        { label: 'Signed-in users', value: t ? t.users : '—', ink: '#16181D' },
+        { label: 'Sessions', value: t ? t.sessions : '—', ink: '#16181D' },
+        { label: 'Session hours', value: t ? t.sessionHours : '—', ink: '#16181D' },
+        { label: 'Errors per hour', value: t ? t.errorsPerHour : '—', ink: t && d.gates.find((x) => x.id === 'errors' && x.state === 'fail') ? '#B42318' : '#16181D' }
+      ]
+    });
+  }
+}
+</script>
+</body>
+</html>

@@ -1,18 +1,21 @@
-import type { DomainEvent, Release } from './model.ts';
+import type { DomainEvent, MatrixPlan, Release } from './model.ts';
 
 // In-memory projection of the event log. apply() must stay pure and deterministic,
 // because the same events are replayed on every start.
 export class State {
   releases = new Map<string, Release>();
+  matrix?: MatrixPlan;
   // Deployments that arrived before the build they belong to (keyed by commit SHA).
   pendingDeploys = new Map<string, { environment: string; at: string }[]>();
 
   apply(e: DomainEvent): void {
+    if (e.type === 'matrix.imported') { this.matrix = e.plan; return; }
     if (e.type === 'release.created') {
       if (!this.releases.has(e.line)) {
         this.releases.set(e.line, {
           line: e.line, branch: e.branch, name: e.name, status: 'building', createdAt: e.at,
-          builds: [], deployments: [], history: []
+          builds: [], deployments: [], history: [], testRuns: [], jira: [], telemetry: {},
+          notes: { generated: {}, locked: {} }
         });
       }
       return;
@@ -49,6 +52,23 @@ export class State {
         r.gh = e.gh;
         r.shippedAt = e.at;
         r.shippedBy = e.by;
+        break;
+      case 'tests.recorded':
+        r.testRuns.push(e.run);
+        break;
+      case 'jira.snapshot':
+        r.jira = e.issues;
+        r.jiraAt = e.at;
+        break;
+      case 'telemetry.snapshot':
+        r.telemetry[e.telemetry.buildId] = e.telemetry;
+        break;
+      case 'notes.generated':
+        r.notes.generated = { ...r.notes.generated, ...e.sections };
+        break;
+      case 'notes.edited':
+        if (e.text === null) delete r.notes.locked[e.section];
+        else r.notes.locked[e.section] = { text: e.text, by: e.by, at: e.at };
         break;
     }
   }

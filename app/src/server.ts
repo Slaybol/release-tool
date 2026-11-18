@@ -1,13 +1,19 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { timingSafeEqual } from 'node:crypto';
 import { loadConfig } from './config.ts';
 import { ForbiddenError, NotFoundError, ReleaseFlow } from './flow.ts';
 import { OctokitGitHub, octokitFor } from './github.ts';
+import { DemoIssues, DemoManualTests, DemoTelemetry } from './integrations/demo.ts';
+import { ElasticSource, JiraSource, ZephyrSource } from './integrations/live.ts';
+import type { Sources } from './integrations/types.ts';
+import { planFromWorkbook } from './matrix.ts';
+import { pollOnce } from './poller.ts';
 import { reconcile } from './reconcile.ts';
 import { FileStore } from './store.ts';
-import { releasesView } from './view.ts';
+import { releaseDetail, releasesView, type SourceInfo } from './view.ts';
 import { verifySignature } from './webhook.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -15,11 +21,20 @@ const webDir = join(here, '..', 'web');
 const repoRoot = join(here, '..', '..'); // shared renderer files from the mockup site
 
 const cfg = loadConfig();
+const now = () => new Date().toISOString();
 const gh = new OctokitGitHub(octokitFor(cfg), cfg.owner, cfg.repo);
 const streams = new Set<ServerResponse>();
-const flow = new ReleaseFlow(cfg, gh, new FileStore(cfg.dataDir), undefined, () => {
+const jiraBaseUrl = cfg.jira.baseUrl ?? 'https://jira.example.com';
+const flow = new ReleaseFlow({ ...cfg, jiraBaseUrl, jiraProject: cfg.jira.project }, gh, new FileStore(cfg.dataDir), now, () => {
   for (const res of streams) res.write(`event: change\ndata: ${Date.now()}\n\n`);
 });
+
+const sources: Sources = {
+  jira: cfg.jira.baseUrl && cfg.jira.apiToken ? new JiraSource(cfg.jira) : new DemoIssues(cfg.jira.project, jiraBaseUrl, cfg.demoMinutes, now),
+  zephyr: cfg.zephyr.apiToken ? new ZephyrSource(cfg.zephyr) : new DemoManualTests(cfg.demoMinutes, now),
+  telemetry: cfg.elastic.url && cfg.elastic.apiKey ? new ElasticSource(cfg.elastic) : new DemoTelemetry(now)
+};
+const sourceInfo: SourceInfo = { jira: sources.jira.live, zephyr: sources.zephyr.live, telemetry: sources.telemetry.live, jiraProject: cfg.jira.project };
 
 const STATIC: Record<string, [string, string]> = {
   '/': [join(webDir, 'index.html'), 'text/html; charset=utf-8'],
@@ -30,18 +45,30 @@ const STATIC: Record<string, [string, string]> = {
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url ?? '/', 'http://localhost');
-    if (req.method === 'POST' && url.pathname === '/webhooks/github') return await webhook(req, res);
-    if (req.method === 'GET' && url.pathname === '/api/releases') return json(res, 200, releasesView(flow.state, new Date().toISOString()));
-    if (req.method === 'GET' && url.pathname === '/api/stream') return stream(req, res);
-    const ship = /^\/api\/releases\/(\d+\.\d+)\/ship$/.exec(url.pathname);
-    if (req.method === 'POST' && ship) return await doShip(req, res, ship[1]);
-    const file = STATIC[url.pathname];
-    if (req.method === 'GET' && file) {
-      res.writeHead(200, { 'content-type': file[1] });
-      return res.end(await readFile(file[0]));
+    const path = url.pathname;
+    if (req.method === 'POST' && path === '/webhooks/github') return await webhook(req, res);
+    if (req.method === 'GET' && path === '/api/releases') return json(res, 200, releasesView(flow, now(), sourceInfo));
+    if (req.method === 'GET' && path === '/api/stream') return stream(req, res);
+    if (req.method === 'GET' && path === '/api/settings') return json(res, 200, { owners: cfg.releaseOwners, tokenRequired: !!cfg.adminToken, repo: `${cfg.owner}/${cfg.repo}`, gates: cfg.gates });
+    if (req.method === 'POST' && path === '/api/matrix') return await uploadMatrix(req, res);
+
+    let m = /^\/api\/releases\/(\d+\.\d+)$/.exec(path);
+    if (req.method === 'GET' && m) {
+      const d = releaseDetail(flow, m[1], now(), sourceInfo);
+      return d ? json(res, 200, d) : json(res, 404, { error: `No release ${m[1]}` });
     }
+    m = /^\/api\/releases\/(\d+\.\d+)\/ship$/.exec(path);
+    if (req.method === 'POST' && m) return await doShip(req, res, m[1]);
+    m = /^\/api\/releases\/(\d+\.\d+)\/notes\/([a-z-]+)$/.exec(path);
+    if (req.method === 'PUT' && m) return await editNotes(req, res, m[1], m[2]);
+    if (req.method === 'GET' && /^\/releases\/\d+\.\d+$/.test(path)) return sendFile(res, join(webDir, 'release.html'), 'text/html; charset=utf-8');
+
+    const file = STATIC[path];
+    if (req.method === 'GET' && file) return sendFile(res, file[0], file[1]);
     json(res, 404, { error: 'Not found' });
   } catch (err: any) {
+    if (err instanceof ForbiddenError) return json(res, 403, { error: err.message });
+    if (err instanceof NotFoundError) return json(res, 404, { error: err.message });
     console.error(err);
     json(res, 500, { error: err?.message ?? 'Server error' });
   }
@@ -52,23 +79,42 @@ async function webhook(req: IncomingMessage, res: ServerResponse) {
   if (!verifySignature(cfg.webhookSecret, body, header(req, 'x-hub-signature-256'))) return json(res, 401, { error: 'Bad signature' });
   const name = header(req, 'x-github-event') ?? 'unknown';
   const delivery = header(req, 'x-github-delivery') ?? `${Date.now()}`;
+  const payload = JSON.parse(body.toString('utf8'));
   // Acknowledge right away; GitHub expects a reply within 10 seconds. Work continues on the queue.
   json(res, 202, { accepted: true });
-  flow.handleWebhook(name, delivery, JSON.parse(body.toString('utf8'))).catch(() => {});
+  flow.handleWebhook(name, delivery, payload).catch(() => {});
+}
+
+// Demo stand-in for SSO: the caller names their GitHub login, which must be a release owner,
+// and proves they may act with the shared ADMIN_TOKEN when one is set.
+function authorize(req: IncomingMessage) {
+  if (!cfg.adminToken) return;
+  const given = Buffer.from((header(req, 'authorization') ?? '').replace(/^Bearer\s+/i, ''));
+  const want = Buffer.from(cfg.adminToken);
+  if (given.length !== want.length || !timingSafeEqual(given, want)) throw new ForbiddenError('A valid admin token is required.');
 }
 
 async function doShip(req: IncomingMessage, res: ServerResponse, line: string) {
-  // Demo stand-in for SSO: the caller names their GitHub login, and it must be a release owner.
+  authorize(req);
   const { actor } = JSON.parse((await readBody(req)).toString('utf8') || '{}');
   if (!actor) return json(res, 400, { error: 'Send {"actor": "<GitHub login>"}' });
-  try {
-    const r = await flow.ship(line, String(actor));
-    json(res, 200, { shipped: r.name, githubRelease: r.gh });
-  } catch (err) {
-    if (err instanceof ForbiddenError) return json(res, 403, { error: err.message });
-    if (err instanceof NotFoundError) return json(res, 404, { error: err.message });
-    throw err;
-  }
+  const r = await flow.ship(line, String(actor));
+  json(res, 200, { shipped: r.name, githubRelease: r.gh });
+}
+
+async function editNotes(req: IncomingMessage, res: ServerResponse, line: string, section: string) {
+  authorize(req);
+  const { text, actor } = JSON.parse((await readBody(req)).toString('utf8') || '{}');
+  if (!actor) return json(res, 400, { error: 'Send {"actor": "<name>", "text": "<markdown>"} or text null to unlock' });
+  await flow.editNotes(line, section, text === null ? null : String(text), String(actor));
+  json(res, 200, { ok: true });
+}
+
+async function uploadMatrix(req: IncomingMessage, res: ServerResponse) {
+  authorize(req);
+  const plan = planFromWorkbook(await readBody(req), header(req, 'x-filename') ?? 'upload.xlsx', now());
+  await flow.importMatrix(plan);
+  json(res, 200, { configs: plan.configs.length, tests: plan.tests.length, planned: plan.cells.length });
 }
 
 function stream(req: IncomingMessage, res: ServerResponse) {
@@ -77,6 +123,11 @@ function stream(req: IncomingMessage, res: ServerResponse) {
   streams.add(res);
   const ping = setInterval(() => res.write(': ping\n\n'), 25000);
   req.on('close', () => { clearInterval(ping); streams.delete(res); });
+}
+
+async function sendFile(res: ServerResponse, path: string, type: string) {
+  res.writeHead(200, { 'content-type': type });
+  res.end(await readFile(path));
 }
 
 function json(res: ServerResponse, status: number, body: unknown) {
@@ -99,9 +150,22 @@ function readBody(req: IncomingMessage): Promise<Buffer> {
   });
 }
 
-server.listen(cfg.port, () => {
+server.listen(cfg.port, async () => {
   console.log(`Release Tool listening on http://localhost:${cfg.port} for ${cfg.owner}/${cfg.repo}`);
-  const run = () => reconcile(flow, gh, cfg.buildWorkflow).catch((err) => console.error('[reconcile]', err?.message ?? err));
-  run();
-  setInterval(run, 6 * 60 * 60 * 1000);
+  console.log(`Sources: Jira ${sourceInfo.jira ? 'live' : 'demo'}, Zephyr ${sourceInfo.zephyr ? 'live' : 'demo'}, telemetry ${sourceInfo.telemetry ? 'live' : 'demo'}`);
+  // Import the test matrix once; after that the plan lives in the tool.
+  if (cfg.matrixFile && !flow.state.matrix) {
+    try {
+      await flow.importMatrix(planFromWorkbook(new Uint8Array(await readFile(cfg.matrixFile)), basename(cfg.matrixFile), now()));
+      console.log(`Imported test matrix from ${cfg.matrixFile}`);
+    } catch (err: any) { console.error('[matrix]', err?.message ?? err); }
+  }
+  const rec = () => reconcile(flow, gh, cfg.buildWorkflow).catch((err) => console.error('[reconcile]', err?.message ?? err));
+  rec();
+  setInterval(rec, 6 * 60 * 60 * 1000);
+  const poll = () => pollOnce(flow, sources, gh, cfg).catch((err) => console.error('[poll]', err?.message ?? err));
+  poll();
+  setInterval(poll, cfg.pollSeconds * 1000);
+  // Gates that depend on the clock (soak time) change without an event: nudge pages every minute.
+  setInterval(() => { for (const s of streams) s.write(`event: change\ndata: ${Date.now()}\n\n`); }, 60000);
 });
