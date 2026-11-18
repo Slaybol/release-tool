@@ -43,7 +43,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
     <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
       <div>
         <h1 style="margin: 0; font-size: 28px; font-weight: 600">Releases in flight</h1>
-        <p style="margin: 6px 0 0; color: #5B6270">Two releases need attention. Select a release marked Open to see its builds, charts and tests.</p>
+        <p style="margin: 6px 0 0; color: #5B6270">Picked up automatically from <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">release/x.xx</span> branches. {{attentionText}} Updated {{ago}}s ago.</p>
       </div>
       <div role="group" aria-label="Filter releases" style="display: flex; gap: 8px; flex-wrap: wrap">
         <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
@@ -55,109 +55,207 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
     <section aria-label="Summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
       <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
         <div style="color: #5B6270; font-size: 13px">In flight</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">5</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{sum.inFlight}}</div>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">{{sum.builds}} builds across them</div>
       </div>
       <button onClick="{{showAttention}}" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; font: inherit; color: #16181D; text-align: left; cursor: pointer">
         <div style="color: #5B6270; font-size: 13px">Need attention</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #B42318">2</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #B42318">{{sum.attention}}</div>
         <div style="color: #2457D6; font-size: 13px; margin-top: 2px">Show them</div>
       </button>
       <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="color: #5B6270; font-size: 13px">User sessions today</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">1,286</div>
+        <div style="color: #5B6270; font-size: 13px">Tests executed, all candidates</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">{{sum.tests}}</div>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">from GitHub Actions and Zephyr</div>
       </div>
       <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="color: #5B6270; font-size: 13px">Shipping this week</div>
-        <div style="font-size: 32px; font-weight: 600; margin-top: 4px">2</div>
+        <div style="color: #5B6270; font-size: 13px">Ready to ship</div>
+        <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: #1F7A4D">{{sum.ready}}</div>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 2px">every readiness gate passing</div>
+      </div>
+    </section>
+
+    <section aria-label="Environments" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">What's deployed where</h2>
+        <span style="color: #5B6270; font-size: 13px">From GitHub Actions deployments · dot shows release status</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); column-gap: 32px; margin-top: 8px">
+        <sc-for list="{{envs}}" as="e" hint-placeholder-count="8">
+          <div style="display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #EEF0F3">
+            <span><span style="display: block; font-weight: 600; font-size: 14px">{{e.name}}</span><span style="display: block; color: #5B6270; font-size: 12px">{{e.count}}</span></span>
+            <span style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{e.items}}" as="i" hint-placeholder-count="2">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid #E3E6EB; background: {{e.bg}}; font-size: 13px; white-space: nowrap"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{i.ink}}"></span>{{i.release}} <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B6270">{{i.build}}</span></span>
+              </sc-for>
+            </span>
+          </div>
+        </sc-for>
       </div>
     </section>
 
     <section aria-label="Releases" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; overflow-x: auto">
-      <div style="min-width: 1020px">
-        <div style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px 104px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #E3E6EB; color: #5B6270; font-size: 13px; font-weight: 500">
-          <div>Status</div><div>Release</div><div>Latest build</div><div>Sessions, 24h</div><div>Errors</div><div>Jira</div><div>Target</div><div><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Details</span></div>
+      <div style="min-width: 1200px">
+        <div style="display: grid; grid-template-columns: {{cols}}; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #E3E6EB; color: #5B6270; font-size: 13px; font-weight: 500">
+          <div>Status</div><div>Release</div><div>Version and build</div><div>Environments</div><div>Tests on candidate</div><div>Time in test</div><div>Jira bugs</div><div>GitHub release</div><div>Target</div>
         </div>
-        <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
-          <sc-if value="{{r.linked}}" hint-placeholder-val="{{ true }}">
-          <a href="{{r.href}}" class="rowlink" style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px 104px; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
-            <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
-            <span><span class="rowname" style="display: block; font-weight: 600; color: #2457D6">{{r.name}}</span><span style="display: block; color: #5B6270; font-size: 13px">{{r.builds}}</span></span>
-            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.latest}}</span>
-            <span style="display: flex; align-items: center; gap: 10px"><svg width="80" height="24" viewBox="0 0 80 24" aria-hidden="true"><path d="{{r.spark}}" fill="none" stroke="#2457D6" stroke-width="1.75" stroke-linejoin="round"></path></svg><span style="font-size: 13px">{{r.sessions}}</span></span>
-            <span style="color: {{r.errInk}}">{{r.errors}}</span>
-            <span>{{r.jira}}</span>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+          <a href="{{r.href}}" class="rowlink" title="{{r.title}}" style="display: grid; grid-template-columns: {{cols}}; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
+            <span style="display: flex; flex-direction: column; gap: 2px">
+              <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
+              <span style="color: #5B6270; font-size: 12px">{{r.why}}</span>
+            </span>
+            <span style="min-width: 0">
+              <span class="rowname" style="display: block; font-weight: 600; color: {{r.nameInk}}">{{r.name}}</span>
+              <span style="display: block; color: #5B6270; font-size: 13px">{{r.owner}}</span>
+              <span style="display: block; color: #5B6270; font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{r.branch}}</span>
+            </span>
+            <span style="min-width: 0">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500">{{r.version}}</span>
+              <span style="display: block; color: #5B6270; font-size: 13px">{{r.build}} · {{r.builds}}</span>
+            </span>
+            <span style="display: flex; flex-wrap: wrap; gap: 4px">
+              <sc-for list="{{r.envs}}" as="e" hint-placeholder-count="2">
+                <span style="padding: 2px 8px; border-radius: 999px; background: #EEF2FC; color: #1A3FA0; font-size: 12px; white-space: nowrap">{{e}}</span>
+              </sc-for>
+            </span>
+            <span style="min-width: 0">
+              <span style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: #EEF0F3">
+                <span style="width: {{r.passW}}; background: #1F7A4D"></span>
+                <span style="width: {{r.failW}}; background: #B42318"></span>
+                <span style="width: {{r.blockW}}; background: #C26A00"></span>
+              </span>
+              <span style="display: block; font-size: 13px; margin-top: 4px">{{r.testLabel}}</span>
+              <span style="display: block; color: #5B6270; font-size: 12px">{{r.matrix}}</span>
+            </span>
+            <span>
+              <span style="display: block; font-size: 14px; font-weight: 500">{{r.time}}</span>
+              <span style="display: block; color: #5B6270; font-size: 12px">{{r.sessions}}</span>
+            </span>
+            <span>
+              <span style="display: block; font-size: 14px">{{r.jira}}</span>
+              <span style="display: block; color: {{r.blockInk}}; font-size: 12px">{{r.blockers}}</span>
+            </span>
+            <span>
+              <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: {{r.ghBg}}; color: {{r.ghInk}}">{{r.gh}}</span>
+              <span style="display: block; color: #5B6270; font-size: 12px; margin-top: 4px">{{r.notes}}</span>
+            </span>
             <span style="color: #5B6270">{{r.target}}</span>
-            <span style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; color: #2457D6; font-weight: 500; font-size: 14px">Open<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
           </a>
-          </sc-if>
-          <sc-if value="{{r.unlinked}}" hint-placeholder-val="{{ false }}">
-          <div title="No screen designed for this release yet" style="display: grid; grid-template-columns: 160px minmax(0, 1.4fr) minmax(0, 1.4fr) 150px 90px 100px 90px 104px; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none; min-height: 44px">
-            <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
-            <span><span style="display: block; font-weight: 600">{{r.name}}</span><span style="display: block; color: #5B6270; font-size: 13px">{{r.builds}}</span></span>
-            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.latest}}</span>
-            <span style="display: flex; align-items: center; gap: 10px"><svg width="80" height="24" viewBox="0 0 80 24" aria-hidden="true"><path d="{{r.spark}}" fill="none" stroke="#2457D6" stroke-width="1.75" stroke-linejoin="round"></path></svg><span style="font-size: 13px">{{r.sessions}}</span></span>
-            <span style="color: {{r.errInk}}">{{r.errors}}</span>
-            <span>{{r.jira}}</span>
-            <span style="color: #5B6270">{{r.target}}</span>
-            <span style="text-align: right; color: #6B7280; font-size: 13px">No page yet</span>
-          </div>
-          </sc-if>
         </sc-for>
       </div>
     </section>
+    <p style="margin: 0; color: #5B6270; font-size: 13px">Status comes from readiness gates: tests executed against plan, test matrix coverage, open blockers, error rate, time in test and dependencies. Each GitHub release follows its candidate build: draft when built, pre-release once in test, released on Ship.</p>
   </main>
 </div>
 </template>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { filter: 'all', ago: 3 };
+    this.state = { filter: 'all', ago: 3, tick: 0 };
   }
   componentDidMount() {
     this.timer = setInterval(() => {
-      this.setState({ ago: this.state.ago >= 9 ? 1 : this.state.ago + 1 });
+      const ago = this.state.ago >= 9 ? 1 : this.state.ago + 1;
+      this.setState({ ago: ago, tick: ago === 1 ? this.state.tick + 1 : this.state.tick });
     }, 1000);
   }
   componentWillUnmount() {
     clearInterval(this.timer);
   }
-  spark(values) {
-    const max = Math.max.apply(null, values), min = Math.min.apply(null, values);
-    const span = max - min || 1;
-    return values.map((v, i) => (i ? 'L' : 'M') + (2 + i * 76 / (values.length - 1)).toFixed(1) + ' ' + (21 - (v - min) / span * 18).toFixed(1)).join(' ');
-  }
   renderVals() {
     const tone = {
-      risk: { dot: '#B42318', ink: '#B42318' },
-      watch: { dot: '#C26A00', ink: '#8A4B00' },
-      track: { dot: '#1F7A4D', ink: '#1F7A4D' }
+      risk: { dot: '#B42318', ink: '#B42318', label: 'At risk' },
+      blocked: { dot: '#B42318', ink: '#B42318', label: 'Blocked' },
+      testing: { dot: '#C26A00', ink: '#8A4B00', label: 'Testing' },
+      building: { dot: '#8C93A0', ink: '#5B6270', label: 'Building' },
+      ready: { dot: '#1F7A4D', ink: '#1F7A4D', label: 'Ready' }
     };
+    const gh = {
+      Draft: { bg: '#EEF0F3', ink: '#5B6270' },
+      'Pre-release': { bg: '#FFF3E0', ink: '#8A4B00' },
+      Released: { bg: '#E7F4EC', ink: '#1F7A4D' }
+    };
+    const t = this.state.tick % 4;
+    // Simulated data. In the real tool every value comes from GitHub Actions, Zephyr, Jira (WEB) and Elastic.
     const all = [
-      { key: 'risk', href: 'release.html', status: 'At risk', name: 'Web app 4.12', builds: '3 builds in flight', latest: 'b1842 · staging', sessions: '412', s: [20, 34, 41, 38, 52, 61, 58, 70], errors: '37', errHigh: true, jira: '6 open', target: 'Oct 14' },
-      { key: 'watch', status: 'Watching', name: 'iOS 7.3', builds: '2 builds in flight', latest: 'b905 · TestFlight', sessions: '286', s: [8, 12, 19, 22, 21, 30, 33, 35], errors: '9', errHigh: false, jira: '3 open', target: 'Oct 16' },
-      { key: 'track', status: 'On track', name: 'Android 7.3', builds: '1 build in flight', latest: 'b771 · beta', sessions: '355', s: [10, 18, 25, 31, 40, 44, 47, 52], errors: '4', errHigh: false, jira: '1 open', target: 'Oct 16' },
-      { key: 'watch', status: 'Watching', name: 'Edge firmware 2026.12', builds: '11 hardware configs · 3 failing, 1 blocked', latest: 'fw-2026.12.0-rc2 · lab', sessions: '64', s: [2, 5, 9, 14, 20, 26, 31, 37], errors: '3', errHigh: true, jira: '4 open', target: 'Dec 9', href: 'hardware.html' },
-      { key: 'track', status: 'On track', name: 'Billing API 2.8', builds: '1 build in flight', latest: 'b318 · canary 10%', sessions: '233', s: [30, 29, 33, 31, 35, 34, 36, 38], errors: '2', errHigh: false, jira: '0 open', target: 'Oct 21' }
+      { key: 'risk', why: 'Errors above threshold', name: 'Web app 4.12', owner: 'Web Platform team', branch: 'release/4.12', href: 'release.html',
+        version: '4.12.0-rc.3', build: 'b1842', builds: '3 builds', envs: ['QA', 'Staging'],
+        planned: 1460, pass: 1284 + t * 3, fail: 23, blocked: 6, matrix: '9 of 12 browser and OS combos covered',
+        time: '2d 6h', sessions: (412 + t * 7) + ' user sessions', jira: '6 open', blockers: '1 blocker', gh: 'Pre-release', notes: 'v4.12.0-rc.3 · notes draft', target: 'Oct 14' },
+      { key: 'blocked', why: 'Held by iOS 7.3 integration', name: 'Billing API 2.8', owner: 'Payments team', branch: 'release/2.8', href: 'integrations.html',
+        version: '2.8.0-rc.1', build: 'b318', builds: '1 build', envs: ['Staging', 'Canary 10%'],
+        planned: 418, pass: 412, fail: 0, blocked: 0, matrix: '4 of 5 integrations verified',
+        time: '4d 1h', sessions: '233 user sessions', jira: '0 open', blockers: 'No blockers', gh: 'Pre-release', notes: 'v2.8.0-rc.1 · notes reviewed', target: 'Oct 21' },
+      { key: 'risk', why: '3 failed, 1 blocked', name: 'Edge firmware 2026.12', owner: 'Edge Hardware team', branch: 'release/2026.12', href: 'hardware.html',
+        version: '2026.12.0-rc2', build: 'fw-rc2', builds: '2 builds', envs: ['Hardware lab'],
+        planned: 209, pass: 162, fail: 3, blocked: 1, matrix: '5 of 11 configs complete',
+        time: '6d 3h', sessions: '64 bench sessions', jira: '4 open', blockers: '3 blockers', gh: 'Pre-release', notes: 'v2026.12.0-rc2 · notes draft', target: 'Dec 9' },
+      { key: 'testing', why: '80 tests not run yet', name: 'iOS 7.3', owner: 'Mobile team', branch: 'release/7.3', href: '',
+        version: '7.3.0-rc.2', build: 'b905', builds: '2 builds', envs: ['TestFlight'],
+        planned: 720, pass: 632 + t * 2, fail: 5, blocked: 3, matrix: '14 of 18 devices covered',
+        time: '1d 20h', sessions: '286 user sessions', jira: '3 open', blockers: 'No blockers', gh: 'Pre-release', notes: 'v7.3.0-rc.2 · notes draft', target: 'Oct 16' },
+      { key: 'ready', why: 'All gates passing', name: 'Android 7.3', owner: 'Mobile team', branch: 'release/7.3', href: '',
+        version: '7.3.0-rc.1', build: 'b771', builds: '1 build', envs: ['QA', 'Play beta'],
+        planned: 702, pass: 702, fail: 0, blocked: 0, matrix: '16 of 16 devices covered',
+        time: '3d 2h', sessions: '355 user sessions', jira: '1 open', blockers: 'No blockers', gh: 'Pre-release', notes: 'v7.3.0-rc.1 · notes reviewed', target: 'Oct 16' },
+      { key: 'building', why: 'First build running', name: 'Web app 4.13', owner: 'Web Platform team', branch: 'release/4.13', href: '',
+        version: '4.13.0-rc.1', build: 'b1851', builds: '1 build', envs: ['Dev'],
+        planned: 1460, pass: 0, fail: 0, blocked: 0, matrix: 'Waiting for first test run',
+        time: 'Not in test', sessions: 'Branch cut today', jira: '11 open', blockers: 'No blockers', gh: 'Draft', notes: 'v4.13.0-rc.1 · created automatically', target: 'Nov 4' }
     ];
     const f = this.state.filter;
-    const shown = all.filter((r) => f === 'all' || (f === 'attention' ? r.key !== 'track' : r.key === 'track'));
+    const attention = (r) => r.key === 'risk' || r.key === 'blocked';
+    const shown = all.filter((r) => f === 'all' || (f === 'attention' ? attention(r) : r.key === 'ready'));
     const pill = (on) => 'min-height: 40px; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer; border: 1px solid ' + (on ? '#2457D6' : '#D5D9E0') + '; background: ' + (on ? '#2457D6' : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : '#16181D');
     const filters = [
       { id: 'all', label: 'All' },
       { id: 'attention', label: 'Needs attention' },
-      { id: 'track', label: 'On track' }
+      { id: 'ready', label: 'Ready' }
     ].map((x) => ({ label: x.label, style: pill(x.id === f), pick: () => this.setState({ filter: x.id }) }));
+    const pct = (n, d) => (d ? (n / d * 100).toFixed(1) : 0) + '%';
+    const fmt = (n) => n.toLocaleString('en-US');
+    const nAttention = all.filter(attention).length;
+    const executed = all.reduce((a, r) => a + r.pass + r.fail, 0);
+    const envOrder = ['Dev', 'QA', 'Staging', 'Canary 10%', 'TestFlight', 'Play beta', 'Hardware lab'];
+    const envs = envOrder.map((name) => {
+      const items = all.filter((r) => r.envs.indexOf(name) >= 0).map((r) => ({ release: r.name, build: r.build, ink: tone[r.key].ink }));
+      return { name: name, items: items, count: items.length === 1 ? '1 build' : items.length + ' builds', bg: '#FFFFFF' };
+    });
+    envs.push({ name: 'Production', bg: '#F6F7F9', count: '5 shipped', items: [
+      { release: 'Web app', build: '4.11.2', ink: '#8C93A0' },
+      { release: 'iOS', build: '7.2.1', ink: '#8C93A0' },
+      { release: 'Android', build: '7.2.1', ink: '#8C93A0' },
+      { release: 'Billing API', build: '2.7.4', ink: '#8C93A0' },
+      { release: 'Edge firmware', build: '2026.09', ink: '#8C93A0' }
+    ] });
     return {
       ago: this.state.ago,
+      cols: '128px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr) 112px 96px minmax(0, 1.1fr) 64px',
+      attentionText: nAttention + ' need attention.',
       filters: filters,
       showAttention: () => this.setState({ filter: 'attention' }),
+      sum: {
+        inFlight: all.length,
+        builds: all.reduce((a, r) => a + parseInt(r.builds, 10), 0),
+        attention: nAttention,
+        tests: fmt(executed),
+        ready: all.filter((r) => r.key === 'ready').length
+      },
+      envs: envs,
       rows: shown.map((r) => ({
-        status: r.status, name: r.name, builds: r.builds, latest: r.latest, sessions: r.sessions,
-        errors: r.errors, jira: r.jira, target: r.target, href: r.href || '', linked: !!r.href, unlinked: !r.href,
-        dot: tone[r.key].dot, ink: tone[r.key].ink,
-        errInk: r.errHigh ? '#B42318' : '#16181D',
-        spark: this.spark(r.s)
+        status: tone[r.key].label, why: r.why, dot: tone[r.key].dot, ink: tone[r.key].ink,
+        name: r.name, owner: r.owner, branch: r.branch,
+        href: r.href || 'javascript:void(0)', title: r.href ? 'Open ' + r.name : 'No screen designed for this release yet',
+        nameInk: r.href ? '#2457D6' : '#16181D',
+        version: r.version, build: r.build, builds: r.builds, envs: r.envs,
+        passW: pct(r.pass, r.planned), failW: pct(r.fail, r.planned), blockW: pct(r.blocked, r.planned),
+        testLabel: r.pass + r.fail ? fmt(r.pass) + ' of ' + fmt(r.planned) + ' passed' + (r.fail ? ' · ' + r.fail + ' failed' : '') + (r.blocked ? ' · ' + r.blocked + ' blocked' : '') : 'Not started · ' + fmt(r.planned) + ' planned',
+        matrix: r.matrix, time: r.time, sessions: r.sessions,
+        jira: r.jira, blockers: r.blockers, blockInk: r.blockers === 'No blockers' ? '#5B6270' : '#B42318',
+        gh: r.gh, ghBg: gh[r.gh].bg, ghInk: gh[r.gh].ink, notes: r.notes,
+        target: r.target
       }))
     };
   }
