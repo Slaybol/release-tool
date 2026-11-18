@@ -90,3 +90,7 @@ To demo: `git switch -c release/4.12 && git push -u origin release/4.12`, then p
 - `web/index.html`, `web/release.html`: the live home and release pages, built on the mockup's renderer.
 
 `npm test` runs the flow against a fake GitHub; `npm run typecheck` checks types.
+
+## Static demo
+
+`npm run build:demo` writes a self-contained copy of the home and release pages to `../demo/`. It needs no server or tokens: the flow, gates and notes run in the browser (`demo/engine.ts`) against simulated GitHub, Jira, Zephyr and Elastic, so the folder can be dropped onto any static host. The story starts when a visitor arrives: 4.12 is ready to ship, 4.13 is blocked, and over about 15 minutes a fixed 4.13 build arrives and reaches Ready. Ships and note edits are kept in the visitor's browser; "Restart demo" starts over.

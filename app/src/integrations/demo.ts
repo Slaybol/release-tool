@@ -19,7 +19,8 @@ export class DemoIssues implements IssueSource {
     const base = 2000 + (hash(release.line) % 800);
     const m = minutesSince(release.createdAt, this.now());
     const candidate = release.builds.find((b) => b.id === release.candidateId);
-    const onFirst = !candidate || isFirstCandidate(candidate);
+    if (!candidate) return []; // nothing to file bugs against before the first build
+    const onFirst = isFirstCandidate(candidate);
     const issue = (n: number, summary: string, type: string, priority: string, done: boolean, blocker = false): JiraIssue => ({
       key: `${this.project}-${base + n}`, summary, type, priority, status: done ? 'Done' : n % 2 ? 'In Progress' : 'To Do', blocker: blocker && !done,
       url: `${this.baseUrl}/browse/${this.project}-${base + n}`

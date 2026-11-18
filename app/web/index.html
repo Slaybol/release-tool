@@ -63,7 +63,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
       <sc-if value="{{noEnvs}}" hint-placeholder-val="{{ false }}">
         <p style="margin: 12px 0 0; color: #5B6270">Nothing deployed yet. Deployments appear here as soon as GitHub reports them.</p>
       </sc-if>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); column-gap: 32px; margin-top: 8px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); column-gap: 32px; margin-top: 8px">
         <sc-for list="{{envs}}" as="e" hint-placeholder-count="3">
           <div style="display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #EEF0F3">
             <span style="font-weight: 600; font-size: 14px">{{e.name}}</span>
@@ -89,7 +89,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
           <a href="{{r.href}}" class="rowlink" style="display: grid; grid-template-columns: {{cols}}; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none">
             <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
               <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
-              <span style="color: #5B6270; font-size: 12px">{{r.reason}}</span>
+              <span title="{{r.reasonFull}}" style="color: #5B6270; font-size: 12px">{{r.reason}}</span>
             </span>
             <span style="min-width: 0">
               <span class="rowname" style="display: block; font-weight: 600; color: #2457D6">{{r.name}}</span>
@@ -200,7 +200,7 @@ class Component extends DCLogic {
       const executed = m ? m.pass + m.fail : 0;
       return {
         href: '/releases/' + r.line,
-        status: t.label, dot: t.dot, ink: t.ink, reason: r.reason, name: r.name, branch: r.branch,
+        status: t.label, dot: t.dot, ink: t.ink, reason: (r.reason || '').split('; ')[0], reasonFull: r.reason, name: r.name, branch: r.branch,
         version: r.candidate ? r.candidate.version : 'No build yet',
         build: r.candidate ? r.candidate.id : '—',
         builds: r.buildCount === 1 ? '1 build' : r.buildCount + ' builds',

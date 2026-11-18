@@ -83,7 +83,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
         <h2 style="margin: 0; font-size: 17px; font-weight: 600">Readiness gates</h2>
         <span style="color: #5B6270; font-size: 13px">Status comes from these. Blocked: a blocker bug or dependency. At risk: failures or errors. Ready: all pass.</span>
       </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 16px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; margin-top: 16px">
         <sc-for list="{{gates}}" as="g" hint-placeholder-count="6">
           <div style="border: 1px solid {{g.border}}; background: {{g.bg}}; border-radius: 10px; padding: 12px 14px">
             <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600; font-size: 14px">{{g.label}}</span><span style="font-size: 12px; font-weight: 600; color: {{g.ink}}">{{g.stateLabel}}</span></div>
@@ -93,7 +93,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
       </div>
     </section>
 
-    <section aria-label="Builds" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+    <section aria-label="Builds" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px">
       <sc-for list="{{builds}}" as="b" hint-placeholder-count="3">
         <div style="background: #FFFFFF; border: 1px solid {{b.border}}; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
@@ -126,7 +126,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
       </div>
     </section>
 
-    <section aria-label="GitHub release and notes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; align-items: start">
+    <section aria-label="GitHub release and notes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px; align-items: start">
       <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
         <h2 style="margin: 0; font-size: 17px; font-weight: 600">GitHub release</h2>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
@@ -224,7 +224,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
       <div style="margin-top: 8px; color: #5B6270; font-size: 13px">{{runsNote}}</div>
     </section>
 
-    <section aria-label="Jira and sessions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; align-items: start">
+    <section aria-label="Jira and sessions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px; align-items: start">
       <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
         <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
           <h2 style="margin: 0; font-size: 17px; font-weight: 600">Jira, fix version {{r.line}}</h2>
