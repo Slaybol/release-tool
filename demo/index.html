@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Release Tool demo: releases in flight, readiness, release notes and test coverage, on simulated data.">
+<title>Release Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="demo-api.js"></script>
+<script src="morphdom.min.js"></script>
+<script src="dc-lite.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+.rowlink:hover{background:#F3F6FD}.rowlink:hover .rowname{text-decoration:underline}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+.rowlink{transition:background .12s}
+.rowlink:hover,.rowlink:focus-visible{background:#F3F6FD}
+.rowlink:hover .rowname{text-decoration:underline}
+body{padding-bottom:72px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="index.html" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+        <a href="index.html" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #EEF2FC; color: #16181D; text-decoration: none; font-weight: 500">Releases</a>
+        <a href="https://slaybol.github.io/release-tool/integrations.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
+        <a href="https://slaybol.github.io/release-tool/connections.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 16px">
+        <span title="{{liveTitle}}" style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: {{liveBg}}; color: {{liveInk}}; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{liveDot}}"></span>{{liveLabel}}</span>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 32px 32px 64px; display: flex; flex-direction: column; gap: 24px">
+    <div>
+      <h1 style="margin: 0; font-size: 28px; font-weight: 600">Releases in flight</h1>
+      <p style="margin: 6px 0 0; color: #5B6270">Picked up automatically from <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">release/x.xx</span> branches in <a href="{{repoUrl}}">{{repo}}</a>. {{updated}}</p>
+    </div>
+
+    <section aria-label="Summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+      <sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+        <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+          <div style="color: #5B6270; font-size: 13px">{{c.label}}</div>
+          <div style="font-size: 32px; font-weight: 600; margin-top: 4px; color: {{c.ink}}">{{c.value}}</div>
+          <div style="color: #5B6270; font-size: 13px; margin-top: 2px">{{c.note}}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section aria-label="Environments" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">What's deployed where</h2>
+        <span style="color: #5B6270; font-size: 13px">From GitHub Actions deployments</span>
+      </div>
+      <sc-if value="{{noEnvs}}" hint-placeholder-val="{{ false }}">
+        <p style="margin: 12px 0 0; color: #5B6270">Nothing deployed yet. Deployments appear here as soon as GitHub reports them.</p>
+      </sc-if>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); column-gap: 32px; margin-top: 8px">
+        <sc-for list="{{envs}}" as="e" hint-placeholder-count="3">
+          <div style="display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #EEF0F3">
+            <span style="font-weight: 600; font-size: 14px">{{e.name}}</span>
+            <span style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{e.items}}" as="i" hint-placeholder-count="2">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid #E3E6EB; font-size: 13px; white-space: nowrap"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{i.dot}}"></span>{{i.release}} <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B6270">{{i.build}}</span></span>
+              </sc-for>
+            </span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-label="Releases" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; overflow-x: auto">
+      <div style="min-width: 1180px">
+        <div style="display: grid; grid-template-columns: {{cols}}; gap: 16px; padding: 12px 20px; border-bottom: 1px solid #E3E6EB; color: #5B6270; font-size: 13px; font-weight: 500">
+          <div>Status</div><div>Release</div><div>Version and build</div><div>Environments</div><div>Tests on candidate</div><div>Time in test</div><div>Jira bugs</div><div>GitHub release</div>
+        </div>
+        <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; padding: 20px; color: #5B6270">No releases in flight. Push a <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">release/x.xx</span> branch to start one.</p>
+        </sc-if>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+          <a href="{{r.href}}" class="rowlink" style="display: grid; grid-template-columns: {{cols}}; gap: 16px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #EEF0F3; color: #16181D; text-decoration: none">
+            <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
+              <span title="{{r.reasonFull}}" style="color: #5B6270; font-size: 12px">{{r.reason}}</span>
+            </span>
+            <span style="min-width: 0">
+              <span class="rowname" style="display: block; font-weight: 600; color: #2457D6">{{r.name}}</span>
+              <span style="display: block; color: #5B6270; font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{r.branch}}</span>
+            </span>
+            <span style="min-width: 0">
+              <span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500">{{r.version}}</span>
+              <span style="display: block; color: #5B6270; font-size: 13px">{{r.build}} · {{r.builds}}</span>
+            </span>
+            <span style="display: flex; flex-wrap: wrap; gap: 4px">
+              <sc-for list="{{r.envs}}" as="e" hint-placeholder-count="2">
+                <span style="padding: 2px 8px; border-radius: 999px; background: #EEF2FC; color: #1A3FA0; font-size: 12px; white-space: nowrap">{{e}}</span>
+              </sc-for>
+            </span>
+            <span style="min-width: 0">
+              <span style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: #EEF0F3">
+                <span style="width: {{r.passW}}; background: #1F7A4D"></span>
+                <span style="width: {{r.failW}}; background: #B42318"></span>
+                <span style="width: {{r.blockW}}; background: #C26A00"></span>
+              </span>
+              <span style="display: block; font-size: 13px; margin-top: 4px">{{r.testLabel}}</span>
+              <span style="display: block; color: #5B6270; font-size: 12px">{{r.testNote}}</span>
+            </span>
+            <span>
+              <span style="display: block; font-size: 14px; font-weight: 500">{{r.time}}</span>
+              <span style="display: block; color: #5B6270; font-size: 12px">{{r.sessions}}</span>
+            </span>
+            <span>
+              <span style="display: block; font-size: 14px">{{r.jira}}</span>
+              <span style="display: block; color: {{r.blockInk}}; font-size: 12px">{{r.blockers}}</span>
+            </span>
+            <span>
+              <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: {{r.ghBg}}; color: {{r.ghInk}}">{{r.gh}}</span>
+              <span style="display: block; color: #5B6270; font-size: 12px; margin-top: 4px">{{r.ghNote}}</span>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+    <p style="margin: 0; color: #5B6270; font-size: 13px">{{sourcesNote}}</p>
+
+    <sc-if value="{{hasShipped}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Recently shipped" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
+        <h2 style="margin: 0 0 8px; font-size: 17px; font-weight: 600">Shipped</h2>
+        <sc-for list="{{shipped}}" as="s" hint-placeholder-count="2">
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 0; border-top: 1px solid #EEF0F3; font-size: 14px">
+            <span style="font-weight: 600">{{s.name}}</span>
+            <a href="{{s.url}}" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{s.tag}}</a>
+            <span style="color: #5B6270">{{s.note}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { data: null, error: '', live: false, loadedAt: 0, tick: 0 };
+  }
+  componentDidMount() {
+    this.load();
+    const es = new EventSource('/api/stream');
+    es.addEventListener('change', () => this.load());
+    es.onopen = () => this.setState({ live: true });
+    es.onerror = () => this.setState({ live: false });
+    setInterval(() => this.setState({ tick: this.state.tick + 1 }), 1000);
+  }
+  load() {
+    fetch('/api/releases').then((r) => r.json())
+      .then((data) => this.setState({ data: data, error: '', loadedAt: Date.now() }))
+      .catch((e) => this.setState({ error: String(e) }));
+  }
+  duration(ms) {
+    if (ms == null) return 'Not in test yet';
+    const m = Math.floor(ms / 60000), h = Math.floor(m / 60), d = Math.floor(h / 24);
+    if (d) return d + 'd ' + (h % 24) + 'h';
+    if (h) return h + 'h ' + (m % 60) + 'm';
+    return m + 'm';
+  }
+  label(env) { return env.length <= 3 ? env.toUpperCase() : env.charAt(0).toUpperCase() + env.slice(1); }
+  renderVals() {
+    const tone = {
+      building: { dot: '#8C93A0', ink: '#5B6270', label: 'Building' },
+      testing: { dot: '#C26A00', ink: '#8A4B00', label: 'Testing' },
+      'at-risk': { dot: '#B42318', ink: '#B42318', label: 'At risk' },
+      blocked: { dot: '#B42318', ink: '#B42318', label: 'Blocked' },
+      ready: { dot: '#1F7A4D', ink: '#1F7A4D', label: 'Ready' },
+      shipped: { dot: '#1F7A4D', ink: '#1F7A4D', label: 'Shipped' }
+    };
+    const gh = {
+      draft: { bg: '#EEF0F3', ink: '#5B6270', label: 'Draft' },
+      prerelease: { bg: '#FFF3E0', ink: '#8A4B00', label: 'Pre-release' },
+      released: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Released' }
+    };
+    const d = this.state.data || { inFlight: [], shipped: [], environments: [], sources: {} };
+    const repo = 'Slaybol/release-tool';
+    const ago = this.state.loadedAt ? Math.round((Date.now() - this.state.loadedAt) / 1000) : 0;
+    const live = this.state.live;
+    const pct = (n, t) => (t ? (n / t * 100).toFixed(1) : 0) + '%';
+    const rows = d.inFlight.map((r) => {
+      const t = tone[r.status] || tone.building;
+      const g = r.githubRelease ? gh[r.githubRelease.state] : null;
+      const sup = r.supersededReleases.length;
+      const m = r.tests.matrix, a = r.tests.automated;
+      const executed = m ? m.pass + m.fail : 0;
+      return {
+        href: 'release.html?line=' + r.line,
+        status: t.label, dot: t.dot, ink: t.ink, reason: (r.reason || '').split('; ')[0], reasonFull: r.reason, name: r.name, branch: r.branch,
+        version: r.candidate ? r.candidate.version : 'No build yet',
+        build: r.candidate ? r.candidate.id : '—',
+        builds: r.buildCount === 1 ? '1 build' : r.buildCount + ' builds',
+        envs: r.environments.map((e) => this.label(e.name) + ' ' + e.build),
+        passW: m ? pct(m.pass, m.planned) : '0%', failW: m ? pct(m.fail, m.planned) : '0%', blockW: m ? pct(m.blocked, m.planned) : '0%',
+        testLabel: m ? (executed ? m.pass + ' of ' + m.planned + ' passed' + (m.fail ? ' · ' + m.fail + ' failed' : '') + (m.blocked ? ' · ' + m.blocked + ' blocked' : '') : 'Not started · ' + m.planned + ' planned') : 'No test matrix imported',
+        testNote: (m ? m.completeConfigs + ' of ' + m.configs + ' configs complete · ' : '') + (a.total ? a.pass + ' of ' + a.total + ' automated passed' : 'no automated results yet'),
+        time: this.duration(r.timeInTestMs == null ? null : r.timeInTestMs + ago * 1000),
+        sessions: r.telemetry ? r.telemetry.users + ' users · ' + r.telemetry.sessionHours + ' session h' : 'No sessions yet',
+        jira: r.jira.synced ? r.jira.open + ' open' : 'Waiting for Jira',
+        blockers: r.jira.blockers ? r.jira.blockers + (r.jira.blockers === 1 ? ' blocker' : ' blockers') : 'No blockers',
+        blockInk: r.jira.blockers ? '#B42318' : '#5B6270',
+        gh: g ? g.label + ' · ' + r.githubRelease.tag : 'None yet', ghBg: g ? g.bg : '#EEF0F3', ghInk: g ? g.ink : '#5B6270',
+        ghNote: sup ? sup + ' earlier ' + (sup === 1 ? 'release' : 'releases') + ' closed' : 'First candidate'
+      };
+    });
+    const count = (fn) => d.inFlight.filter(fn).length;
+    const s = d.sources || {};
+    const demo = [s.jira ? null : 'Jira', s.zephyr ? null : 'Zephyr', s.telemetry ? null : 'Elastic'].filter(Boolean);
+    return {
+      repo: repo, repoUrl: 'https://github.com/' + repo,
+      updated: this.state.error ? 'Could not load: ' + this.state.error : (this.state.loadedAt ? 'Updated ' + ago + 's ago.' : 'Loading…'),
+      liveLabel: live ? 'Live' : 'Reconnecting', liveTitle: live ? 'Updates arrive as GitHub and the integrations report them' : 'Lost the live connection; retrying',
+      liveBg: live ? '#E7F4EC' : '#FFF3E0', liveInk: live ? '#1F7A4D' : '#8A4B00', liveDot: live ? '#1F7A4D' : '#C26A00',
+      cards: [
+        { label: 'In flight', value: d.inFlight.length, note: 'open release/x.xx lines', ink: '#16181D' },
+        { label: 'Need attention', value: count((r) => r.status === 'at-risk' || r.status === 'blocked'), note: 'at risk or blocked', ink: '#B42318' },
+        { label: 'Ready to ship', value: count((r) => r.status === 'ready'), note: 'every readiness gate passing', ink: '#1F7A4D' },
+        { label: 'Shipped', value: d.shipped.length, note: 'published as latest on GitHub', ink: '#16181D' }
+      ],
+      cols: '136px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr) 120px 96px minmax(0, 1.2fr)',
+      noRows: rows.length === 0,
+      rows: rows,
+      sourcesNote: demo.length ? 'Demo: GitHub, Jira, Zephyr and Elastic are simulated in your browser. In use, each connects to the real service.' : 'All sources are live.',
+      noEnvs: d.environments.length === 0,
+      envs: d.environments.map((e) => ({ name: this.label(e.name), items: e.items.map((i) => ({ release: i.release, build: i.build, dot: (tone[i.status] || tone.building).dot })) })),
+      hasShipped: d.shipped.length > 0,
+      shipped: d.shipped.map((x) => ({ name: x.name, tag: x.githubRelease ? x.githubRelease.tag : '', url: x.githubRelease ? x.githubRelease.url : '#', note: 'by ' + x.shippedBy + ' · ' + new Date(x.shippedAt).toLocaleString() }))
+    };
+  }
+}
+</script>
+</body>
+</html>
