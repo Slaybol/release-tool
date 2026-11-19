@@ -154,7 +154,7 @@ class Component extends DCLogic {
       noRows: rows.length === 0,
       rows: rows,
       hasShipped: d.shipped.length > 0,
-      shipped: d.shipped.slice(0, 3).map((x) => ({ label: x.name + ' (' + (x.githubRelease ? x.githubRelease.tag : '') + ')', url: x.githubRelease ? x.githubRelease.url : '#' }))
+      shipped: d.shipped.slice(0, 3).map((x) => ({ label: x.name + ' (' + (x.githubRelease ? x.githubRelease.tag : '') + ')', url: 'release.html?line=' + x.line }))
     };
   }
 }

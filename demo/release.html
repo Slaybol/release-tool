@@ -271,7 +271,7 @@ class Component extends DCLogic {
     const reached = [!!d.candidate, hoursIn('qa') > 0, hoursIn('staging') > 0, ready || d.status === 'shipped', d.status === 'shipped'];
     let last = -1; reached.forEach((x, i) => { if (x) last = i; });
     const bad = d.status === 'blocked' || d.status === 'at-risk';
-    const stepNotes = [d.candidate ? d.candidate.id : 'Not yet', hoursIn('qa') ? this.hours(hoursIn('qa')) + (envs.indexOf('qa') >= 0 ? ' so far' : '') : '', hoursIn('staging') ? this.hours(hoursIn('staging')) + (envs.indexOf('staging') >= 0 ? ' so far' : '') : '', reached[3] ? 'All checks pass' : (fails.length ? plural(fails.length, 'check') + ' failing' : ''), d.status === 'shipped' ? (g ? g.tag : '') : ''];
+    const stepNotes = [d.candidate ? d.candidate.id : 'Not yet', hoursIn('qa') ? this.hours(hoursIn('qa')) + (envs.indexOf('qa') >= 0 && d.status !== 'shipped' ? ' so far' : '') : '', hoursIn('staging') ? this.hours(hoursIn('staging')) + (envs.indexOf('staging') >= 0 && d.status !== 'shipped' ? ' so far' : '') : '', reached[3] ? 'All checks pass' : (fails.length ? plural(fails.length, 'check') + ' failing' : ''), d.status === 'shipped' ? (g ? g.tag : '') : ''];
     const steps = ['Built', 'QA', 'Staging', 'Ready', 'Shipped'].map((n, i) => ({ label: n, note: stepNotes[i], bar: i <= last ? (bad && i === last ? '#B42318' : '#1F7A4D') : '#E3E6EB', ink: i <= last ? '#16181D' : '#8C93A0', weight: i === last ? '600' : '400' }));
     const icon = { fail: { i: '✕', ink: '#B42318', o: 0 }, pending: { i: '…', ink: '#8A4B00', o: 1 }, pass: { i: '✓', ink: '#1F7A4D', o: 2 } };
     const checks = d.gates.slice().sort((x, y) => icon[x.state].o - icon[y.state].o).map((x) => ({ label: x.label, detail: x.detail, icon: icon[x.state].i, ink: icon[x.state].ink, state: x.state }));
@@ -292,7 +292,7 @@ class Component extends DCLogic {
       r: d,
       pill: tone[d.status],
       headline: headline,
-      versionText: d.candidate ? d.candidate.version : 'No build yet',
+      versionText: d.status === 'shipped' && g ? g.tag.replace(/^v/, '') + ' (from ' + d.candidate.version + ')' : d.candidate ? d.candidate.version : 'No build yet',
       ghUrl: g ? g.url : '#',
       canShip: ready,
       shipOpen: this.state.shipOpen && ready,

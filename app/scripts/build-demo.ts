@@ -33,7 +33,8 @@ const common: [string | RegExp, string][] = [
   ['<title>', '<meta name="description" content="Release Tool demo: releases in flight, readiness, release notes and test coverage, on simulated data.">\n<title>']
 ];
 writeFileSync(join(out, 'index.html'), patch(readFileSync(join(app, 'web/index.html'), 'utf8'), [...common,
-  ["href: '/releases/' + r.line", "href: 'release.html?line=' + r.line"]]));
+  ["href: '/releases/' + r.line", "href: 'release.html?line=' + r.line"],
+  ["url: '/releases/' + x.line", "url: 'release.html?line=' + x.line"]]));
 writeFileSync(join(out, 'release.html'), patch(readFileSync(join(app, 'web/release.html'), 'utf8'), [...common,
   ["this.line = location.pathname.split('/').pop();", "this.line = new URLSearchParams(location.search).get('line') || '4.12';"]]));
 const plain: [string | RegExp, string][] = [
