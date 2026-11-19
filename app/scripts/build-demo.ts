@@ -28,6 +28,7 @@ const common: [string | RegExp, string][] = [
   ['href="/"', 'href="index.html"'],
   ['href="/integrations.html"', 'href="integrations.html"'],
   ['href="/connections.html"', 'href="connections.html"'],
+  ['href="/hardware.html"', 'href="hardware.html"'],
   ['</style>', 'body{padding-bottom:72px}\n</style>'],
   ['<title>', '<meta name="description" content="Release Tool demo: releases in flight, readiness, release notes and test coverage, on simulated data.">\n<title>']
 ];
@@ -40,6 +41,6 @@ const plain: [string | RegExp, string][] = [
   ...common.filter(([a]) => typeof a === 'string' && a.startsWith('href=')),
   ['</style>', 'body{padding-bottom:72px}\n</style>']
 ];
-for (const f of ['integrations.html', 'connections.html']) writeFileSync(join(out, f), patch(readFileSync(join(app, 'web', f), 'utf8'), plain));
+for (const f of ['hardware.html', 'integrations.html', 'connections.html']) writeFileSync(join(out, f), patch(readFileSync(join(app, 'web', f), 'utf8'), plain));
 for (const f of ['morphdom.min.js', 'morphdom-LICENSE.txt', 'dc-lite.js']) copyFileSync(join(root, f), join(out, f));
 console.log(`Built the demo site in ${out}`);

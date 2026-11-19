@@ -39,6 +39,7 @@ const sourceInfo: SourceInfo = { jira: sources.jira.live, zephyr: sources.zephyr
 const STATIC: Record<string, [string, string]> = {
   '/': [join(webDir, 'index.html'), 'text/html; charset=utf-8'],
   '/integrations.html': [join(webDir, 'integrations.html'), 'text/html; charset=utf-8'],
+  '/hardware.html': [join(webDir, 'hardware.html'), 'text/html; charset=utf-8'],
   '/connections.html': [join(webDir, 'connections.html'), 'text/html; charset=utf-8'],
   '/dc-lite.js': [join(repoRoot, 'dc-lite.js'), 'text/javascript'],
   '/morphdom.min.js': [join(repoRoot, 'morphdom.min.js'), 'text/javascript']
