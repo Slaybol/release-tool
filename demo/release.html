@@ -16,11 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0;background:#F6F7F9}
-.rowlink:hover{background:#F3F6FD}.rowlink:hover .rowname{text-decoration:underline}
 a{color:#2457D6}a:hover{color:#1A3FA0}
-.rowlink{transition:background .12s}
-.rowlink:hover,.rowlink:focus-visible{background:#F3F6FD}
-.rowlink:hover .rowname{text-decoration:underline}
 body{padding-bottom:72px}
 </style>
 </helmet>
@@ -36,13 +32,11 @@ body{padding-bottom:72px}
         <a href="https://slaybol.github.io/release-tool/integrations.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
         <a href="https://slaybol.github.io/release-tool/connections.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
       </nav>
-      <div style="display: flex; align-items: center; gap: 16px">
-        <span title="{{liveTitle}}" style="display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; background: {{liveBg}}; color: {{liveInk}}; font-size: 13px; font-weight: 500"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{liveDot}}"></span>{{liveLabel}}</span>
-      </div>
+      <span></span>
     </div>
   </header>
 
-  <main style="max-width: 1280px; margin: 0 auto; padding: 24px 32px 64px; display: flex; flex-direction: column; gap: 24px">
+  <main style="max-width: 1080px; margin: 0 auto; padding: 24px 32px 64px; display: flex; flex-direction: column; gap: 20px">
     <a href="index.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; text-decoration: none; font-weight: 500"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg>All releases</a>
 
     <sc-if value="{{missing}}" hint-placeholder-val="{{ false }}">
@@ -50,29 +44,29 @@ body{padding-bottom:72px}
     </sc-if>
 
     <sc-if value="{{loaded}}" hint-placeholder-val="{{ true }}">
-    <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
       <div>
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
           <h1 style="margin: 0; font-size: 28px; font-weight: 600">{{r.name}}</h1>
           <span style="padding: 4px 12px; border-radius: 999px; background: {{pill.bg}}; color: {{pill.ink}}; font-weight: 600; font-size: 13px">{{pill.label}}</span>
         </div>
-        <p style="margin: 6px 0 0; color: #5B6270">{{r.reason}}. Candidate <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{candidateText}}</span> on <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.branch}}</span>.</p>
+        <p style="margin: 6px 0 0; color: #3D4350; font-size: 16px">{{headline}}</p>
+        <p style="margin: 4px 0 0; color: #5B6270; font-size: 13px"><span style="font-family: 'IBM Plex Mono', monospace">{{versionText}}</span> · <a href="{{ghUrl}}">GitHub release</a></p>
       </div>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <a href="{{ghUrl}}" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; text-decoration: none; font-weight: 500">Open GitHub release</a>
-        <button type="button" onClick="{{openShip}}" title="{{shipTitle}}" style="{{shipStyle}}">{{shipLabel}}</button>
-      </div>
+      <sc-if value="{{canShip}}" hint-placeholder-val="{{ false }}">
+        <button type="button" onClick="{{openShip}}" style="min-height: 48px; padding: 0 24px; border: 0; border-radius: 8px; background: #1F7A4D; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer">Ship {{shipVersion}}</button>
+      </sc-if>
     </div>
 
     <sc-if value="{{shipOpen}}" hint-placeholder-val="{{ false }}">
-      <section aria-label="Ship" style="background: #FFFFFF; border: 1px solid #BFDCCB; border-radius: 12px; padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
-        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #5B6270">Release owner
-          <select onChange="{{pickActor}}" style="min-height: 40px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 8px; font: inherit; color: #16181D">
+      <section aria-label="Ship" style="background: #F1F8F4; border: 1px solid #BFDCCB; border-radius: 12px; padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #3D4350">Shipping as
+          <select onChange="{{pickActor}}" style="min-height: 40px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 8px; font: inherit; color: #16181D; background: #FFFFFF">
             <sc-for list="{{owners}}" as="o" hint-placeholder-count="2"><option value="{{o.value}}">{{o.value}}</option></sc-for>
           </select>
         </label>
         <sc-if value="{{tokenRequired}}" hint-placeholder-val="{{ true }}">
-          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #5B6270">Admin token
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #3D4350">Admin token
             <input type="password" onInput="{{typeToken}}" value="{{token}}" style="min-height: 40px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 8px; font: inherit">
           </label>
         </sc-if>
@@ -81,178 +75,134 @@ body{padding-bottom:72px}
       </section>
     </sc-if>
 
-    <section aria-label="Readiness" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
-        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Readiness gates</h2>
-        <span style="color: #5B6270; font-size: 13px">Status comes from these. Blocked: a blocker bug or dependency. At risk: failures or errors. Ready: all pass.</span>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; margin-top: 16px">
-        <sc-for list="{{gates}}" as="g" hint-placeholder-count="6">
-          <div style="border: 1px solid {{g.border}}; background: {{g.bg}}; border-radius: 10px; padding: 12px 14px">
-            <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600; font-size: 14px">{{g.label}}</span><span style="font-size: 12px; font-weight: 600; color: {{g.ink}}">{{g.stateLabel}}</span></div>
-            <div style="color: #3D4350; font-size: 13px; margin-top: 4px">{{g.detail}}</div>
-          </div>
+    <section aria-label="Progress" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px">
+      <ol style="list-style: none; margin: 0; padding: 0; display: flex; gap: 6px">
+        <sc-for list="{{steps}}" as="st" hint-placeholder-count="5">
+          <li style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+            <span style="height: 8px; border-radius: 4px; background: {{st.bar}}"></span>
+            <span style="font-size: 14px; font-weight: {{st.weight}}; color: {{st.ink}}">{{st.label}}</span>
+            <span style="font-size: 12px; color: #5B6270">{{st.note}}</span>
+          </li>
         </sc-for>
-      </div>
+      </ol>
     </section>
 
-    <section aria-label="Builds" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 16px">
-      <sc-for list="{{builds}}" as="b" hint-placeholder-count="3">
-        <div style="background: #FFFFFF; border: 1px solid {{b.border}}; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 6px">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
-            <a href="{{b.runUrl}}" style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{b.id}}</a>
-            <span style="font-size: 12px; font-weight: 600; color: {{b.ink}}">{{b.role}}</span>
-          </div>
-          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{b.version}}</div>
-          <div style="color: #5B6270; font-size: 13px">{{b.where}}</div>
+    <section aria-label="Checks" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px">
+      <h2 style="margin: 0 0 8px; font-size: 17px; font-weight: 600">{{checksTitle}}</h2>
+      <sc-for list="{{checks}}" as="g" hint-placeholder-count="7">
+        <div style="display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid #EEF0F3; font-size: 14px">
+          <span aria-label="{{g.state}}" style="flex: none; width: 14px; font-weight: 700; color: {{g.ink}}">{{g.icon}}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 2px 16px">
+            <span style="flex: 0 0 180px; font-weight: 500">{{g.label}}</span>
+            <span style="flex: 1 1 240px; color: #5B6270">{{g.detail}}</span>
+          </span>
         </div>
       </sc-for>
     </section>
 
-    <section aria-label="Environments" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
-        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Time in each environment</h2>
-        <span style="color: #5B6270; font-size: 13px">{{laneRange}} · from GitHub deployments</span>
-      </div>
-      <sc-if value="{{noLanes}}" hint-placeholder-val="{{ false }}"><p style="margin: 12px 0 0; color: #5B6270">No deployments yet.</p></sc-if>
-      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px">
-        <sc-for list="{{lanes}}" as="l" hint-placeholder-count="2">
-          <div style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center">
-            <span style="font-weight: 600; font-size: 14px">{{l.name}}</span>
-            <div style="position: relative; height: 28px; border-radius: 6px; background: #F1F3F6">
-              <sc-for list="{{l.bars}}" as="b" hint-placeholder-count="2">
-                <div title="{{b.title}}" style="position: absolute; top: 3px; bottom: 3px; left: {{b.left}}; width: {{b.width}}; border-radius: 4px; background: {{b.fill}}; color: {{b.text}}; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 22px; padding: 0 6px; overflow: hidden; white-space: nowrap; box-sizing: border-box">{{b.label}}</div>
-              </sc-for>
-            </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 20px; align-items: start">
+      <section aria-label="Tests" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Tests</h2>
+        <div style="font-size: 24px; font-weight: 600; margin-top: 10px">{{testHead}}</div>
+        <div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: #EEF0F3; margin-top: 8px">
+          <span style="width: {{passW}}; background: #1F7A4D"></span><span style="width: {{failW}}; background: #B42318"></span>
+        </div>
+        <div style="color: #5B6270; font-size: 13px; margin-top: 6px">{{testSub}}</div>
+        <sc-for list="{{problems}}" as="p" hint-placeholder-count="2">
+          <div style="display: flex; gap: 10px; font-size: 14px; padding: 6px 0; border-top: 1px solid #EEF0F3; margin-top: 6px">
+            <span style="color: {{p.ink}}; font-weight: 600; flex: none; width: 64px">{{p.outcome}}</span><span>{{p.name}} <span style="color: #5B6270">on {{p.configId}}</span></span>
           </div>
         </sc-for>
-      </div>
-    </section>
+        <sc-if value="{{hasMatrix}}" hint-placeholder-val="{{ true }}">
+          <button type="button" onClick="{{toggleMatrix}}" style="min-height: 36px; padding: 0 12px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; font: inherit; font-size: 14px; cursor: pointer; margin-top: 12px">{{matrixToggle}}</button>
+        </sc-if>
+      </section>
 
-    <section aria-label="GitHub release and notes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px; align-items: start">
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
-        <h2 style="margin: 0; font-size: 17px; font-weight: 600">GitHub release</h2>
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
-          <a href="{{ghUrl}}" style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500">{{ghTag}}</a>
-          <span style="padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: {{ghPill.bg}}; color: {{ghPill.ink}}">{{ghPill.label}}</span>
-        </div>
-        <ol aria-label="Release stages" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px">
-          <sc-for list="{{ghSteps}}" as="s" hint-placeholder-count="3">
-            <li style="display: flex; flex-direction: column; gap: 6px">
-              <span style="height: 6px; border-radius: 3px; background: {{s.bar}}"></span>
-              <span style="font-size: 14px; font-weight: {{s.weight}}; color: {{s.ink}}">{{s.label}}</span>
-              <span style="font-size: 12px; color: #5B6270">{{s.when}}</span>
-            </li>
-          </sc-for>
-        </ol>
-        <div style="border-top: 1px solid #EEF0F3; padding-top: 12px">
-          <div style="font-size: 13px; font-weight: 600; color: #5B6270; margin-bottom: 6px">Closed when replaced</div>
-          <sc-if value="{{noHistory}}" hint-placeholder-val="{{ false }}"><div style="color: #5B6270; font-size: 13px">None yet</div></sc-if>
-          <sc-for list="{{history}}" as="h" hint-placeholder-count="2">
-            <div style="display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 12px; padding: 4px 0; font-size: 13px">
-              <a href="{{h.url}}" style="font-family: 'IBM Plex Mono', monospace">{{h.tag}}</a>
-              <span style="color: #5B6270">{{h.note}}</span>
+      <section aria-label="Bugs" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Open bugs</h2>
+        <sc-if value="{{noBugs}}" hint-placeholder-val="{{ false }}"><p style="margin: 10px 0 0; color: #5B6270">{{noBugsText}}</p></sc-if>
+        <div style="margin-top: 6px">
+          <sc-for list="{{issues}}" as="i" hint-placeholder-count="2">
+            <div style="display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid #EEF0F3; font-size: 14px">
+              <a href="{{i.url}}" style="flex: none; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{i.key}}</a>
+              <span style="flex: 1; min-width: 0">{{i.summary}}</span>
+              <span style="flex: none; font-size: 12px; font-weight: 600; color: {{i.tagInk}}">{{i.tag}}</span>
             </div>
           </sc-for>
         </div>
-      </div>
+      </section>
+    </div>
 
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+    <sc-if value="{{showMatrix}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Test matrix" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px; overflow-x: auto">
         <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
-          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Release notes</h2>
-          <span style="color: #5B6270; font-size: 13px">Rebuilt for each build · edited sections are kept</span>
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Test matrix</h2>
+          <span style="color: #5B6270; font-size: 13px">{{matrixNote}}</span>
         </div>
-        <sc-for list="{{notes}}" as="n" hint-placeholder-count="4">
-          <div style="border-top: 1px solid #EEF0F3; padding-top: 10px">
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
-              <span style="font-size: 14px; font-weight: 600">{{n.title}} <span style="font-size: 12px; font-weight: 500; color: {{n.tagInk}}">{{n.tag}}</span></span>
-              <sc-if value="{{n.editable}}" hint-placeholder-val="{{ true }}">
-                <span style="display: flex; gap: 6px">
-                  <sc-if value="{{n.canUnlock}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{n.unlock}}" style="min-height: 32px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 6px; background: #FFFFFF; font: inherit; font-size: 13px; cursor: pointer">Use generated</button></sc-if>
-                  <button type="button" onClick="{{n.edit}}" style="min-height: 32px; padding: 0 10px; border: 1px solid #D5D9E0; border-radius: 6px; background: #FFFFFF; font: inherit; font-size: 13px; cursor: pointer">Edit</button>
-                </span>
-              </sc-if>
-            </div>
-            <sc-if value="{{n.editing}}" hint-placeholder-val="{{ false }}">
-              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
-                <textarea aria-label="Edit {{n.title}}" onInput="{{typeNote}}" rows="8" style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #D5D9E0; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{draft}}</textarea>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
-                  <button type="button" onClick="{{saveNote}}" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 6px; background: #2457D6; color: #FFFFFF; font: inherit; font-weight: 600; cursor: pointer">Save to GitHub</button>
-                  <button type="button" onClick="{{cancelNote}}" style="min-height: 36px; padding: 0 14px; border: 1px solid #D5D9E0; border-radius: 6px; background: #FFFFFF; font: inherit; cursor: pointer">Cancel</button>
-                  <span style="color: #5B6270; font-size: 13px">{{noteMsg}}</span>
-                </div>
-              </div>
-            </sc-if>
-            <sc-if value="{{n.showing}}" hint-placeholder-val="{{ true }}">
-              <div style="white-space: pre-wrap; font-size: 13px; line-height: 1.5; color: #3D4350; margin-top: 6px; max-height: 220px; overflow: auto">{{n.text}}</div>
-            </sc-if>
-          </div>
-        </sc-for>
-      </div>
-    </section>
-
-    <section aria-label="Tests" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; overflow-x: auto">
-      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
-        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Test matrix on {{candidateId}}</h2>
-        <span style="color: #5B6270; font-size: 13px">{{matrixNote}}</span>
-      </div>
-      <sc-if value="{{hasMatrix}}" hint-placeholder-val="{{ true }}">
-        <div style="min-width: 900px; margin-top: 16px">
+        <div style="min-width: 860px; margin-top: 12px">
           <div style="display: grid; grid-template-columns: {{mcols}}; gap: 6px; font-size: 12px; color: #5B6270; font-weight: 500; padding-bottom: 6px">
             <span>Configuration</span>
             <sc-for list="{{categories}}" as="c" hint-placeholder-count="5"><span style="text-align: center">{{c}}</span></sc-for>
-            <span style="text-align: right">Passed</span>
           </div>
           <sc-for list="{{mrows}}" as="m" hint-placeholder-count="5">
-            <div style="display: grid; grid-template-columns: {{mcols}}; gap: 6px; align-items: center; padding: 4px 0; border-top: 1px solid #EEF0F3">
+            <div style="display: grid; grid-template-columns: {{mcols}}; gap: 6px; align-items: center; padding: 3px 0">
               <span style="font-size: 13px"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{m.id}}</span> <span style="color: #5B6270">{{m.os}}</span></span>
               <sc-for list="{{m.cells}}" as="c" hint-placeholder-count="5">
-                <span style="text-align: center; padding: 4px 0; border-radius: 4px; font-size: 12px; background: {{c.bg}}; color: {{c.ink}}">{{c.label}}</span>
+                <span title="{{c.title}}" style="height: 22px; border-radius: 4px; background: {{c.bg}}"></span>
               </sc-for>
-              <span style="text-align: right; font-size: 13px">{{m.label}}</span>
             </div>
           </sc-for>
-        </div>
-      </sc-if>
-      <sc-if value="{{hasProblems}}" hint-placeholder-val="{{ false }}">
-        <h3 style="margin: 16px 0 6px; font-size: 14px">Failing and blocked</h3>
-        <sc-for list="{{problems}}" as="p" hint-placeholder-count="2">
-          <div style="display: grid; grid-template-columns: 80px minmax(0, 1fr) 80px 80px; gap: 12px; font-size: 13px; padding: 4px 0; border-top: 1px solid #EEF0F3">
-            <span style="font-family: 'IBM Plex Mono', monospace">{{p.testId}}</span><span>{{p.name}}</span><span style="font-family: 'IBM Plex Mono', monospace">{{p.configId}}</span><span style="color: {{p.ink}}; font-weight: 600">{{p.outcome}}</span>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: #5B6270">
+            <span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #1F7A4D; margin-right: 6px"></span>All passed</span>
+            <span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #9ECFB2; margin-right: 6px"></span>In progress</span>
+            <span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #B42318; margin-right: 6px"></span>Failed or blocked</span>
+            <span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: #E3E6EB; margin-right: 6px"></span>Not run</span>
           </div>
-        </sc-for>
-      </sc-if>
-      <div style="margin-top: 16px; color: #3D4350; font-size: 13px">{{autoNote}}</div>
-      <sc-for list="{{autoFailures}}" as="f" hint-placeholder-count="1"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #B42318">✕ {{f.testId}}</div></sc-for>
-      <div style="margin-top: 8px; color: #5B6270; font-size: 13px">{{runsNote}}</div>
+        </div>
+      </section>
+    </sc-if>
+
+    <section aria-label="Release notes" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 17px; font-weight: 600">Release notes</h2>
+        <span style="color: #5B6270; font-size: 13px">Written by the tool. Your edits are kept.</span>
+      </div>
+      <sc-for list="{{notes}}" as="n" hint-placeholder-count="3">
+        <div style="border-top: 1px solid #EEF0F3; padding-top: 12px; margin-top: 12px">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+            <span style="font-size: 14px; font-weight: 600">{{n.title}} <span style="font-size: 12px; font-weight: 500; color: #1F7A4D">{{n.tag}}</span></span>
+            <span style="display: flex; gap: 6px">
+              <sc-if value="{{n.canUnlock}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{n.unlock}}" style="min-height: 36px; padding: 0 12px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; font: inherit; font-size: 14px; cursor: pointer">Reset</button></sc-if>
+              <button type="button" onClick="{{n.edit}}" style="min-height: 36px; padding: 0 12px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; font: inherit; font-size: 14px; cursor: pointer">Edit</button>
+            </span>
+          </div>
+          <sc-if value="{{n.editing}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+              <textarea aria-label="Edit {{n.title}}" onInput="{{typeNote}}" rows="6" style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #D5D9E0; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{draft}}</textarea>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+                <button type="button" onClick="{{saveNote}}" style="min-height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #2457D6; color: #FFFFFF; font: inherit; font-weight: 600; cursor: pointer">Save</button>
+                <button type="button" onClick="{{cancelNote}}" style="min-height: 36px; padding: 0 12px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; font: inherit; font-size: 14px; cursor: pointer">Cancel</button>
+                <span style="color: #5B6270; font-size: 13px">{{noteMsg}}</span>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{n.showing}}" hint-placeholder-val="{{ true }}">
+            <div style="white-space: pre-wrap; font-size: 14px; line-height: 1.55; color: #3D4350; margin-top: 6px">{{n.text}}</div>
+          </sc-if>
+        </div>
+      </sc-for>
     </section>
 
-    <section aria-label="Jira and sessions" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 16px; align-items: start">
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
-          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Jira, fix version {{r.line}}</h2>
-          <span style="color: #5B6270; font-size: 13px">{{jiraNote}}</span>
-        </div>
-        <sc-for list="{{issues}}" as="i" hint-placeholder-count="4">
-          <div style="display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; gap: 10px; font-size: 13px; padding: 6px 0; border-top: 1px solid #EEF0F3; color: {{i.textInk}}">
-            <a href="{{i.url}}" style="font-family: 'IBM Plex Mono', monospace">{{i.key}}</a>
-            <span>{{i.summary}} <span style="color: {{i.tagInk}}; font-weight: 600">{{i.tag}}</span></span>
-            <span style="text-align: right; color: #5B6270">{{i.status}}</span>
+    <button type="button" onClick="{{toggleMore}}" style="min-height: 36px; padding: 0 12px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; font: inherit; font-size: 14px; cursor: pointer; align-self: flex-start">{{moreToggle}}</button>
+    <sc-if value="{{showMore}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="More details" style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; font-size: 14px">
+        <sc-for list="{{more}}" as="x" hint-placeholder-count="5">
+          <div style="display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 12px; padding: 6px 0; border-top: 1px solid #EEF0F3">
+            <span style="color: #5B6270">{{x.k}}</span><span>{{x.v}}</span>
           </div>
         </sc-for>
-      </div>
-      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
-          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Real use of {{candidateId}}</h2>
-          <span style="color: #5B6270; font-size: 13px">{{telNote}}</span>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px">
-          <sc-for list="{{tel}}" as="t" hint-placeholder-count="4">
-            <div><div style="color: #5B6270; font-size: 13px">{{t.label}}</div><div style="font-size: 24px; font-weight: 600; color: {{t.ink}}">{{t.value}}</div></div>
-          </sc-for>
-        </div>
-      </div>
-    </section>
+      </section>
+    </sc-if>
     </sc-if>
   </main>
 </div>
@@ -262,7 +212,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.line = new URLSearchParams(location.search).get('line') || '4.12';
-    this.state = { data: null, settings: null, error: '', live: false, editing: '', draft: '', noteMsg: '', shipOpen: false, actor: '', token: '', shipMsg: '' };
+    this.state = { data: null, settings: null, error: '', live: false, editing: '', draft: '', noteMsg: '', shipOpen: false, showMatrix: false, showMore: false, actor: '', token: '', shipMsg: '' };
     try { this.state.token = sessionStorage.getItem('rt-token') || ''; } catch (e) {}
   }
   componentDidMount() {
@@ -291,61 +241,61 @@ class Component extends DCLogic {
   label(env) { return env.length <= 3 ? env.toUpperCase() : env.charAt(0).toUpperCase() + env.slice(1); }
   renderVals() {
     const d = this.state.data;
-    const live = this.state.live;
-    const base = {
-      liveLabel: live ? 'Live' : 'Reconnecting', liveTitle: live ? 'Updates arrive as GitHub and the integrations report them' : 'Lost the live connection; retrying',
-      liveBg: live ? '#E7F4EC' : '#FFF3E0', liveInk: live ? '#1F7A4D' : '#8A4B00', liveDot: live ? '#1F7A4D' : '#C26A00',
-      loaded: !!d, missing: !d, missingText: this.state.error || 'Loading…'
-    };
+    const base = { loaded: !!d, missing: !d, missingText: this.state.error || 'Loading…' };
     if (!d) return base;
     const tone = {
-      building: { bg: '#EEF0F3', ink: '#5B6270', label: 'Building' }, testing: { bg: '#FFF3E0', ink: '#8A4B00', label: 'Testing' },
+      building: { bg: '#EEF0F3', ink: '#5B6270', label: 'Waiting for build' }, testing: { bg: '#FFF3E0', ink: '#8A4B00', label: 'Testing' },
       'at-risk': { bg: '#FDECEA', ink: '#B42318', label: 'At risk' }, blocked: { bg: '#FDECEA', ink: '#B42318', label: 'Blocked' },
-      ready: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Ready' }, shipped: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Shipped' }
+      ready: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Ready to ship' }, shipped: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Shipped' }
     };
-    const gate = { pass: { bg: '#F1F8F4', border: '#BFDCCB', ink: '#1F7A4D', label: 'Pass' }, fail: { bg: '#FDF3F2', border: '#F5C6C1', ink: '#B42318', label: 'Fail' }, pending: { bg: '#FFFFFF', border: '#E3E6EB', ink: '#8A4B00', label: 'Waiting' } };
-    const ghs = { draft: { bg: '#EEF0F3', ink: '#5B6270', label: 'Draft' }, prerelease: { bg: '#FFF3E0', ink: '#8A4B00', label: 'Pre-release' }, released: { bg: '#E7F4EC', ink: '#1F7A4D', label: 'Released' } };
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
     const s = this.state.settings || { owners: [], tokenRequired: false };
     const ready = d.status === 'ready';
     const g = d.githubRelease;
-    const order = ['draft', 'prerelease', 'released'];
-    const at = g ? order.indexOf(g.state) : -1;
-    const steps = [['Draft', 'Created when the build finished'], ['Pre-release', 'When the candidate reached a test environment'], ['Released', 'When a release owner ships']].map((x, i) => ({
-      label: x[0], when: x[1], bar: i < at ? '#1F7A4D' : i === at ? (i === 2 ? '#1F7A4D' : '#C26A00') : '#EEF0F3', ink: i <= at ? '#16181D' : '#5B6270', weight: i === at ? '600' : '400'
-    }));
-    const cov = d.matrix;
-    const lanes = d.lanes.lanes.map((l) => ({
-      name: this.label(l.name),
-      bars: l.bars.map((b) => ({ left: b.left.toFixed(2) + '%', width: b.width.toFixed(2) + '%', label: b.build + ' · ' + this.hours(b.hours), title: b.build + ' in ' + l.name + ' for ' + this.hours(b.hours) + (b.current ? ' (now)' : ''), fill: b.candidate ? '#2457D6' : '#C9D6F5', text: b.candidate ? '#FFFFFF' : '#1A3FA0' }))
-    }));
-    const notes = d.notes.map((n) => ({
-      title: n.title, editable: n.editable, canUnlock: !!n.locked, text: n.text.replace(/^## [^\n]*\n+/, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*/g, '').replace(/`/g, '').replace(/^_(.*)_$/gm, '$1').replace(/^[*-] /gm, '• '),
-      tag: n.locked ? 'Edited by ' + n.locked.by + ' · kept' : n.editable ? 'Generated' : 'Written by the tool', tagInk: n.locked ? '#1F7A4D' : '#5B6270',
+    const m = d.tests.matrix, a = d.tests.automated, cov = d.matrix;
+    const fails = d.gates.filter((x) => x.state === 'fail'), waits = d.gates.filter((x) => x.state === 'pending');
+    let headline;
+    if (d.status === 'shipped') headline = 'Shipped by ' + d.shippedBy + ' on ' + new Date(d.shippedAt).toLocaleDateString() + '.';
+    else if (d.status === 'building') headline = 'Waiting for the first build on ' + d.branch + '.';
+    else if (ready) headline = 'Every check passes. A release owner can ship it.';
+    else if (fails.length) {
+      const blockers = d.jiraIssues.filter((i) => i.blocker && !/done|closed|resolved/i.test(i.status)).map((i) => i.key);
+      const others = fails.length - (blockers.length ? 1 : 0);
+      headline = (blockers.length ? 'Blocked by bug ' + blockers.join(', ') + '.' + (others ? ' ' + plural(others, 'other check') + ' failing.' : '') : 'Not ready: ' + plural(fails.length, 'check') + ' failing.');
+    }
+    else headline = 'Testing in progress. Waiting on ' + waits.map((x) => x.label.toLowerCase()).join(', ') + '.';
+    // Progress: how far the candidate has got.
+    const hoursIn = (env) => { const l = d.lanes.lanes.find((x) => x.name === env); return l ? l.bars.filter((b) => b.candidate).reduce((t, b) => t + b.hours, 0) : 0; };
+    const envs = d.environments.map((e) => e.name);
+    const reached = [!!d.candidate, hoursIn('qa') > 0, hoursIn('staging') > 0, ready || d.status === 'shipped', d.status === 'shipped'];
+    let last = -1; reached.forEach((x, i) => { if (x) last = i; });
+    const bad = d.status === 'blocked' || d.status === 'at-risk';
+    const stepNotes = [d.candidate ? d.candidate.id : 'Not yet', hoursIn('qa') ? this.hours(hoursIn('qa')) + (envs.indexOf('qa') >= 0 ? ' so far' : '') : '', hoursIn('staging') ? this.hours(hoursIn('staging')) + (envs.indexOf('staging') >= 0 ? ' so far' : '') : '', reached[3] ? 'All checks pass' : (fails.length ? plural(fails.length, 'check') + ' failing' : ''), d.status === 'shipped' ? (g ? g.tag : '') : ''];
+    const steps = ['Built', 'QA', 'Staging', 'Ready', 'Shipped'].map((n, i) => ({ label: n, note: stepNotes[i], bar: i <= last ? (bad && i === last ? '#B42318' : '#1F7A4D') : '#E3E6EB', ink: i <= last ? '#16181D' : '#8C93A0', weight: i === last ? '600' : '400' }));
+    const icon = { fail: { i: '✕', ink: '#B42318', o: 0 }, pending: { i: '…', ink: '#8A4B00', o: 1 }, pass: { i: '✓', ink: '#1F7A4D', o: 2 } };
+    const checks = d.gates.slice().sort((x, y) => icon[x.state].o - icon[y.state].o).map((x) => ({ label: x.label, detail: x.detail, icon: icon[x.state].i, ink: icon[x.state].ink, state: x.state }));
+    const passed = d.gates.filter((x) => x.state === 'pass').length;
+    const open = d.jiraIssues.filter((i) => !/done|closed|resolved/i.test(i.status) && /bug/i.test(i.type)).sort((x, y) => (y.blocker ? 1 : 0) - (x.blocker ? 1 : 0));
+    const pct = (n, t) => (t ? (n / t * 100).toFixed(1) : 0) + '%';
+    const t = d.telemetry;
+    const notes = d.notes.filter((n) => n.editable).map((n) => ({
+      title: n.title, canUnlock: !!n.locked,
+      text: n.text.replace(/^## [^\n]*\n+/, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*/g, '').replace(/`/g, '').replace(/^_(.*)_$/gm, '$1').replace(/^[*-] /gm, '• ').replace(/ by @\S+ in #\d+/g, ''),
+      tag: n.locked ? 'Edited by ' + n.locked.by : '',
       editing: this.state.editing === n.id, showing: this.state.editing !== n.id,
       edit: () => this.setState({ editing: n.id, draft: n.text, noteMsg: '' }),
       unlock: () => this.send('PUT', '/api/releases/' + d.line + '/notes/' + n.id, { text: null, actor: this.state.actor || 'Release Tool' }).then(() => this.load()).catch((e) => this.setState({ noteMsg: e.message }))
     }));
-    const t = d.telemetry;
-    const issues = d.jiraIssues.map((i) => {
-      const done = /done|closed|resolved/i.test(i.status);
-      return { key: i.key, url: i.url, summary: i.summary, status: i.status, tag: i.blocker ? 'Blocker' : (/bug/i.test(i.type) ? '' : i.type), tagInk: i.blocker ? '#B42318' : '#5B6270', textInk: done ? '#8C93A0' : '#16181D' };
-    });
-    const demo = (live) => (live ? 'live' : 'simulated demo data');
-    const a = d.tests.automated;
+    const sim = (live) => (live ? '' : ' (simulated)');
     return Object.assign(base, {
       r: d,
       pill: tone[d.status],
-      candidateId: d.candidate ? d.candidate.id : 'no build',
-      candidateText: d.candidate ? d.candidate.version + ' (' + d.candidate.id + ')' : 'none yet',
-      ghUrl: g ? g.url : '#', ghTag: g ? g.tag : 'None yet', ghPill: g ? ghs[g.state] : ghs.draft,
-      ghSteps: steps,
-      noHistory: d.supersededReleases.length === 0,
-      history: d.supersededReleases.map((h) => ({ tag: h.tag, url: h.url, note: h.state === 'draft' ? 'Draft deleted (' + h.buildId + ')' : 'Pre-release marked superseded, tag kept (' + h.buildId + ')' })),
+      headline: headline,
+      versionText: d.candidate ? d.candidate.version : 'No build yet',
+      ghUrl: g ? g.url : '#',
+      canShip: ready,
       shipOpen: this.state.shipOpen && ready,
-      shipLabel: d.status === 'shipped' ? 'Shipped' : 'Ship',
-      shipTitle: ready ? 'Publish the GitHub release as latest' : 'Ship unlocks when every readiness gate passes',
-      shipStyle: 'min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; color: #FFFFFF; background: ' + (ready ? '#1F7A4D' : '#C4C9D2') + '; cursor: ' + (ready ? 'pointer' : 'not-allowed'),
-      openShip: () => { if (ready) this.setState({ shipOpen: !this.state.shipOpen, shipMsg: '' }); },
+      openShip: () => this.setState({ shipOpen: !this.state.shipOpen, shipMsg: '' }),
       owners: s.owners.map((o) => ({ value: o })),
       tokenRequired: s.tokenRequired,
       token: this.state.token,
@@ -354,35 +304,41 @@ class Component extends DCLogic {
       shipVersion: d.candidate ? d.candidate.version.replace(/-rc\.\d+$/, '') : '',
       shipMsg: this.state.shipMsg,
       confirmShip: () => this.send('POST', '/api/releases/' + d.line + '/ship', { actor: this.state.actor }).then(() => this.setState({ shipOpen: false })).catch((e) => this.setState({ shipMsg: e.message })),
-      gates: d.gates.map((x) => ({ label: x.label, detail: x.detail, stateLabel: gate[x.state].label, bg: gate[x.state].bg, border: gate[x.state].border, ink: gate[x.state].ink })),
-      builds: d.builds.map((b) => ({ id: b.id, runUrl: b.runUrl, version: b.version, role: b.candidate ? 'Candidate' : 'Replaced', ink: b.candidate ? '#2457D6' : '#5B6270', border: b.candidate ? '#2457D6' : '#E3E6EB', where: b.envs.length ? 'In ' + b.envs.map((e) => this.label(e)).join(', ') : 'Not deployed now' })),
-      noLanes: lanes.length === 0, lanes: lanes,
-      laneRange: 'Since ' + new Date(d.lanes.start).toLocaleString(),
+      steps: steps,
+      checksTitle: d.status === 'shipped' ? 'Checks' : passed === d.gates.length ? 'All ' + d.gates.length + ' checks pass' : passed + ' of ' + d.gates.length + ' checks pass',
+      checks: checks,
+      testHead: m ? (m.pass + m.fail ? m.pass + ' of ' + m.planned + ' passed' : 'Not started') : 'No test plan',
+      passW: m ? pct(m.pass, m.planned) : '0%', failW: m ? pct(m.fail + m.blocked, m.planned) : '0%',
+      testSub: (m ? (m.fail || m.blocked ? plural(m.fail, 'failure') + (m.blocked ? ', ' + m.blocked + ' blocked · ' : ' · ') : '') + m.completeConfigs + ' of ' + m.configs + ' hardware setups done · ' : '') + (a.total ? a.pass + ' of ' + a.total + ' automated' : 'no automated results'),
+      problems: cov ? cov.problems.slice(0, 5).map((p) => ({ name: p.name, configId: p.configId, outcome: p.outcome === 'fail' ? 'Failed' : 'Blocked', ink: p.outcome === 'fail' ? '#B42318' : '#8A4B00' })) : [],
+      hasMatrix: !!cov,
+      showMatrix: this.state.showMatrix && !!cov,
+      matrixToggle: this.state.showMatrix ? 'Hide test matrix' : 'Show test matrix',
+      toggleMatrix: () => this.setState({ showMatrix: !this.state.showMatrix }),
+      matrixNote: cov ? 'From ' + cov.source + ' · results from Zephyr' + sim(d.sources.zephyr) : '',
+      categories: cov ? cov.categories : [],
+      mcols: '210px repeat(' + (cov ? cov.categories.length : 1) + ', minmax(0, 1fr))',
+      mrows: cov ? cov.configs.map((c) => ({
+        id: c.id, os: c.os,
+        cells: c.cells.map((x, i) => ({ title: cov.categories[i] + ': ' + (x.planned ? x.pass + ' of ' + x.planned + ' passed' : 'not planned'), bg: x.planned === 0 ? 'transparent' : x.bad ? '#B42318' : x.pass === x.planned ? '#1F7A4D' : x.pass ? '#9ECFB2' : '#E3E6EB' }))
+      })) : [],
+      noBugs: open.length === 0,
+      noBugsText: d.jira.synced ? 'None on fix version ' + d.line + '.' : 'Waiting for Jira.',
+      issues: open.map((i) => ({ key: i.key, url: i.url, summary: i.summary, tag: i.blocker ? 'Blocker' : i.priority, tagInk: i.blocker ? '#B42318' : '#5B6270' })),
       notes: notes, draft: this.state.draft, noteMsg: this.state.noteMsg,
       typeNote: (e) => { this.state.draft = e.target.value; },
       cancelNote: () => this.setState({ editing: '' }),
       saveNote: () => this.send('PUT', '/api/releases/' + d.line + '/notes/' + this.state.editing, { text: this.state.draft, actor: this.state.actor || 'Release Tool' }).then(() => { this.setState({ editing: '' }); this.load(); }).catch((e) => this.setState({ noteMsg: e.message })),
-      hasMatrix: !!cov,
-      matrixNote: cov ? 'Plan imported from ' + cov.source + ' · results from Zephyr (' + demo(d.sources.zephyr) + ')' : 'No test matrix imported yet',
-      categories: cov ? cov.categories : [],
-      mcols: '210px repeat(' + (cov ? cov.categories.length : 1) + ', minmax(0, 1fr)) 80px',
-      mrows: cov ? cov.configs.map((c) => ({
-        id: c.id, os: c.os, label: c.pass + ' / ' + c.planned,
-        cells: c.cells.map((x) => x.planned === 0 ? { label: '—', bg: '#FFFFFF', ink: '#8C93A0' } : { label: x.pass + '/' + x.planned, bg: x.bad ? '#FDECEA' : x.pass === x.planned ? '#E7F4EC' : x.pass ? '#FFF3E0' : '#F1F3F6', ink: x.bad ? '#B42318' : x.pass === x.planned ? '#1F7A4D' : '#3D4350' })
-      })) : [],
-      hasProblems: !!(cov && cov.problems.length),
-      problems: cov ? cov.problems.map((p) => ({ testId: p.testId, name: p.name, configId: p.configId, outcome: p.outcome === 'fail' ? 'Failed' : 'Blocked', ink: p.outcome === 'fail' ? '#B42318' : '#8A4B00' })) : [],
-      autoNote: a.total ? 'GitHub Actions: ' + a.pass + ' of ' + a.total + ' automated tests passed on this build.' : 'GitHub Actions: no test-results artifacts for this build yet.',
-      autoFailures: d.automatedFailures,
-      runsNote: d.testRuns.length ? d.testRuns.length + ' test runs recorded, ' + d.testRuns.reduce((x, y) => x + y.count, 0) + ' results, ' + this.hours(d.testRuns.reduce((x, y) => x + y.effortHours, 0)) + ' of test time.' : 'No test runs recorded yet.',
-      jiraNote: d.jira.synced ? d.jira.open + (d.jira.open === 1 ? ' open bug · ' : ' open bugs · ') + demo(d.sources.jira) : 'Waiting for Jira',
-      issues: issues,
-      telNote: 'Elastic, by service.version · ' + demo(d.sources.telemetry),
-      tel: [
-        { label: 'Signed-in users', value: t ? t.users : '—', ink: '#16181D' },
-        { label: 'Sessions', value: t ? t.sessions : '—', ink: '#16181D' },
-        { label: 'Session hours', value: t ? t.sessionHours : '—', ink: '#16181D' },
-        { label: 'Errors per hour', value: t ? t.errorsPerHour : '—', ink: t && d.gates.find((x) => x.id === 'errors' && x.state === 'fail') ? '#B42318' : '#16181D' }
+      moreToggle: this.state.showMore ? 'Hide details' : 'More details',
+      toggleMore: () => this.setState({ showMore: !this.state.showMore }),
+      showMore: this.state.showMore,
+      more: [
+        { k: 'Branch', v: d.branch },
+        { k: 'Builds', v: d.builds.map((b) => b.id + ' (' + b.version + ')' + (b.candidate ? ' current' : ' replaced')).join(', ') },
+        { k: 'GitHub release', v: g ? g.tag + ', ' + ({ draft: 'draft', prerelease: 'pre-release', released: 'released' })[g.state] : 'None yet' },
+        { k: 'Earlier releases closed', v: d.supersededReleases.length ? d.supersededReleases.map((h) => h.tag).join(', ') : 'None' },
+        { k: 'Real use' + sim(d.sources.telemetry), v: t ? t.users + ' signed-in users, ' + t.sessions + ' sessions, ' + t.errorsPerHour + ' errors per hour' : 'No sessions yet' },
+        { k: 'Test effort', v: d.testRuns.length ? this.hours(d.testRuns.reduce((x, y) => x + y.effortHours, 0)) + ' over ' + plural(d.testRuns.length, 'test run') : 'None yet' }
       ]
     });
   }

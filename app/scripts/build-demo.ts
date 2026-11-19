@@ -30,8 +30,7 @@ const common: [string | RegExp, string][] = [
   ['<title>', '<meta name="description" content="Release Tool demo: releases in flight, readiness, release notes and test coverage, on simulated data.">\n<title>']
 ];
 writeFileSync(join(out, 'index.html'), patch(readFileSync(join(app, 'web/index.html'), 'utf8'), [...common,
-  ["href: '/releases/' + r.line", "href: 'release.html?line=' + r.line"],
-  ["'GitHub data is live. ' + demo.join(', ') + (demo.length === 1 ? ' runs' : ' run') + ' on simulated demo data until connected.'", "'Demo: GitHub, Jira, Zephyr and Elastic are simulated in your browser. In use, each connects to the real service.'"]]));
+  ["href: '/releases/' + r.line", "href: 'release.html?line=' + r.line"]]));
 writeFileSync(join(out, 'release.html'), patch(readFileSync(join(app, 'web/release.html'), 'utf8'), [...common,
   ["this.line = location.pathname.split('/').pop();", "this.line = new URLSearchParams(location.search).get('line') || '4.12';"]]));
 for (const f of ['morphdom.min.js', 'morphdom-LICENSE.txt', 'dc-lite.js']) copyFileSync(join(root, f), join(out, f));

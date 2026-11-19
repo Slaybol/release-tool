@@ -220,7 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
   bar.setAttribute('role', 'note');
   bar.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px);box-sizing:border-box;padding:8px 8px 8px 16px;border-radius:999px;background:#16181D;color:#FFFFFF;font:500 13px/1.3 "IBM Plex Sans",system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.18)';
   const text = document.createElement('span');
-  text.textContent = 'Demo on simulated data. Watch 4.13 get a fixed build and reach Ready over about 15 minutes.';
+  text.textContent = 'Demo with simulated data';
+  text.style.whiteSpace = 'nowrap';
+  bar.title = 'Watch 4.13 get a fixed build and reach Ready over about 15 minutes.';
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.textContent = 'Restart demo';
