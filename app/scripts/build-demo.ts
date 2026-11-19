@@ -26,6 +26,8 @@ const common: [string | RegExp, string][] = [
   ['<script src="/morphdom.min.js"></script>', '<script src="demo-api.js"></script>\n<script src="morphdom.min.js"></script>'],
   ['<script src="/dc-lite.js"></script>', '<script src="dc-lite.js"></script>'],
   ['href="/"', 'href="index.html"'],
+  ['href="/integrations.html"', 'href="integrations.html"'],
+  ['href="/connections.html"', 'href="connections.html"'],
   ['</style>', 'body{padding-bottom:72px}\n</style>'],
   ['<title>', '<meta name="description" content="Release Tool demo: releases in flight, readiness, release notes and test coverage, on simulated data.">\n<title>']
 ];
@@ -33,5 +35,11 @@ writeFileSync(join(out, 'index.html'), patch(readFileSync(join(app, 'web/index.h
   ["href: '/releases/' + r.line", "href: 'release.html?line=' + r.line"]]));
 writeFileSync(join(out, 'release.html'), patch(readFileSync(join(app, 'web/release.html'), 'utf8'), [...common,
   ["this.line = location.pathname.split('/').pop();", "this.line = new URLSearchParams(location.search).get('line') || '4.12';"]]));
+const plain: [string | RegExp, string][] = [
+  ['<title>', '<script src="demo-api.js"></script>\n<title>'],
+  ...common.filter(([a]) => typeof a === 'string' && a.startsWith('href=')),
+  ['</style>', 'body{padding-bottom:72px}\n</style>']
+];
+for (const f of ['integrations.html', 'connections.html']) writeFileSync(join(out, f), patch(readFileSync(join(app, 'web', f), 'utf8'), plain));
 for (const f of ['morphdom.min.js', 'morphdom-LICENSE.txt', 'dc-lite.js']) copyFileSync(join(root, f), join(out, f));
 console.log(`Built the demo site in ${out}`);

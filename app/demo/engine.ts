@@ -173,7 +173,7 @@ class Demo {
     await this.ready;
     await this.advance(Date.now());
     const iso = this.now();
-    if (method === 'GET' && path === '/api/releases') return [200, releasesView(this.flow, iso, this.sourceInfo)];
+    if (method === 'GET' && path === '/api/releases') return [200, { ...releasesView(this.flow, iso, this.sourceInfo), demo: true }];
     if (method === 'GET' && path === '/api/settings') return [200, { owners: [OWNER], tokenRequired: false, repo: REPO, gates: this.gates }];
     let m = /^\/api\/releases\/(\d+\.\d+)$/.exec(path);
     if (method === 'GET' && m) { const d = releaseDetail(this.flow, m[1], iso, this.sourceInfo); return d ? [200, d] : [404, { error: `No release ${m[1]}` }]; }
