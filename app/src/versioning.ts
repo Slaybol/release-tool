@@ -1,5 +1,5 @@
-// release/4.12 → 4.12. Two-part lines only, as agreed (release/x.xx).
-const BRANCH = /^release\/(\d+\.\d+)$/;
+// release/4.12 (or Release/4.12) → 4.12. Two-part lines only, as agreed (release/x.xx).
+const BRANCH = /^release\/(\d+\.\d+)$/i;
 
 export function releaseLine(ref: string | null | undefined): string | undefined {
   if (!ref) return undefined;

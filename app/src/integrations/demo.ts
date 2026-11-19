@@ -16,26 +16,38 @@ export class DemoIssues implements IssueSource {
   constructor(private project: string, private baseUrl: string, private demoMinutes: number, private now: () => string) {}
 
   async issues(release: Release): Promise<JiraIssue[]> {
-    const base = 2000 + (hash(release.line) % 800);
-    const m = minutesSince(release.createdAt, this.now());
     const candidate = release.builds.find((b) => b.id === release.candidateId);
     if (!candidate) return []; // nothing to file bugs against before the first build
     const onFirst = isFirstCandidate(candidate);
-    const issue = (n: number, summary: string, type: string, priority: string, done: boolean, blocker = false): JiraIssue => ({
-      key: `${this.project}-${base + n}`, summary, type, priority, status: done ? 'Done' : n % 2 ? 'In Progress' : 'To Do', blocker: blocker && !done,
-      url: `${this.baseUrl}/browse/${this.project}-${base + n}`
-    });
+    const m = minutesSince(release.createdAt, this.now());
     const step = this.demoMinutes / 3;
+    // Keys line up with the stories in each release's notes, so the pages tell one story.
+    const known = LINES[release.line];
+    const base = 2000 + (hash(release.line) % 800);
+    const k = known ?? { blocker: [base, 'Checkout error rate rising in staging'], bugs: [[base + 1, 'Date picker ignores the browser locale'], [base + 2, 'Invoice history empty for accounts migrated last month'], [base + 3, 'Saved cart badge count off by one after sign-in']], stories: [] } as LineIssues;
+    const issue = (key: number, summary: string, type: string, priority: string, done: boolean, blocker = false): JiraIssue => ({
+      key: `${this.project}-${key}`, summary, type, priority, status: done ? 'Done' : key % 2 ? 'In Progress' : 'To Do', blocker: blocker && !done,
+      url: `${this.baseUrl}/browse/${this.project}-${key}`
+    });
+    const [b1, b2, b3] = k.bugs;
     return [
-      issue(0, 'Checkout error rate rising in staging', 'Bug', 'Highest', !onFirst, true),
-      issue(1, 'Date picker ignores the browser locale', 'Bug', 'High', m > step),
-      issue(2, 'Invoice history empty for accounts migrated last month', 'Bug', 'Medium', m > 2 * step),
-      issue(3, 'Saved cart badge count off by one after sign-in', 'Bug', 'Low', false),
-      issue(4, 'Invoice history uses Billing API v2', 'Story', 'Medium', true),
-      issue(5, 'Saved carts sync across devices', 'Story', 'Medium', true)
+      issue(k.blocker[0], k.blocker[1], 'Bug', 'Highest', !onFirst, true),
+      issue(b1[0], b1[1], 'Bug', 'High', m > step),
+      issue(b2[0], b2[1], 'Bug', 'Medium', m > 2 * step),
+      issue(b3[0], b3[1], 'Bug', 'Low', false),
+      ...k.stories.map(([key, summary]) => issue(key, summary, 'Story', 'Medium', true))
     ];
   }
 }
+
+interface LineIssues { blocker: [number, string]; bugs: [number, string][]; stories: [number, string][] }
+// Demo Jira per release line. The stories match the simulated GitHub notes in demo/engine.ts, and the
+// 4.13 blocker is the payments timeout the Integrations page shows.
+const LINES: Record<string, LineIssues> = {
+  '4.11': { blocker: [2108, 'Refund totals off by a cent in some currencies'], bugs: [[2109, 'Orders search ignores the date filter'], [2111, 'Order export missing the tax column'], [2112, 'Search results flicker while typing']], stories: [[2105, 'Faster search on the orders page']] },
+  '4.12': { blocker: [2276, 'Invoice history fails for accounts on Billing API v1'], bugs: [[2277, 'Date picker ignores the browser locale'], [2279, 'Invoice history empty for accounts migrated last month'], [2281, 'Saved cart badge count off by one after sign-in']], stories: [[2270, 'Invoice history uses Billing API v2'], [2274, 'Saved carts sync across devices']] },
+  '4.13': { blocker: [2318, 'Checkout times out against Payments partner API v3 under load'], bugs: [[2319, 'Card retry shows the error banner twice'], [2321, 'One-page checkout loses the coupon on refresh'], [2323, 'Order summary wraps badly on small screens']], stories: [[2311, 'One-page checkout'], [2316, 'Retry card payments on network errors']] }
+};
 
 export class DemoManualTests implements ManualTestSource {
   readonly live = false;

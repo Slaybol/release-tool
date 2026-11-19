@@ -63,7 +63,7 @@ body{padding-bottom:72px}
   function result(r, t) {
     if (!r.candidate) return { state: 'none', label: 'Not built yet' };
     if (r.line === '4.13' && /-rc\.1$/.test(r.candidate.version) && t.id === 'payments')
-      return { state: 'fail', label: '15 of 18 pass', why: 'Checkout times out against ' + t.name + ' under load (WEB-2179).' };
+      return { state: 'fail', label: '15 of 18 pass', why: 'Checkout times out against ' + t.name + ' under load (WEB-2318).' };
     return { state: 'pass', label: t.tests + ' of ' + t.tests + ' pass' };
   }
   var look = { pass: ['✓', '#1F7A4D'], fail: ['✕', '#B42318'], none: ['–', '#8C93A0'] };

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { releaseLine } from '../src/versioning.ts';
 import { ForbiddenError, ReleaseFlow } from '../src/flow.ts';
 import type { GitHubClient } from '../src/github.ts';
 import { MemoryStore } from '../src/store.ts';
@@ -68,6 +69,13 @@ function setup() {
 }
 
 describe('build pickup', () => {
+  it('reads the release line from release/x.xx and Release/x.xx branches only', () => {
+    expect(releaseLine('release/4.12')).toBe('4.12');
+    expect(releaseLine('refs/heads/Release/4.13')).toBe('4.13');
+    expect(releaseLine('release/4.12-hotfix')).toBeUndefined();
+    expect(releaseLine('feature/release/4.12')).toBeUndefined();
+  });
+
   it('creates a release when a release/x.xx branch is created, and ignores other branches', async () => {
     const { flow, send } = setup();
     await send('create', { ref_type: 'branch', ref: 'release/4.12' });
