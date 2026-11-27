@@ -42,9 +42,10 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
           <h1 style="margin: 0; font-size: 28px; font-weight: 600">Web app 4.12</h1>
           <span style="padding: 4px 12px; border-radius: 999px; background: #FDECEA; color: #B42318; font-weight: 600; font-size: 13px">At risk</span>
         </div>
-        <p style="margin: 6px 0 0; color: #5B6270">Errors on b1842 are rising in staging. Target Oct 14 · Owner: Web Platform team</p>
+        <p style="margin: 6px 0 0; color: #5B6270">Errors on b1842 (4.12.0-rc.3) are rising in staging. Branch <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">release/4.12</span> · Target Oct 14 · Owner: Web Platform team</p>
       </div>
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <button type="button" title="In the real tool this opens the release on GitHub" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid #D5D9E0; border-radius: 8px; background: #FFFFFF; color: #16181D; font: inherit; font-weight: 500; cursor: pointer">Open GitHub release</button>
         <button type="button" disabled title="Not connected yet: this integration is planned but not built in the demo" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">Open in Jira<span style="font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #EEF0F3; color: #5B6270">Not connected</span></button>
         <button type="button" disabled title="Not connected yet: this integration is planned but not built in the demo" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px dashed #C4C9D2; border-radius: 8px; background: #F6F7F9; color: #6B7280; font: inherit; cursor: not-allowed">Open in Kibana<span style="font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #EEF0F3; color: #5B6270">Not connected</span></button>
       </div>
@@ -64,13 +65,73 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
       <sc-for list="{{builds}}" as="b" hint-placeholder-count="3">
         <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px">
           <div style="display: flex; justify-content: space-between; align-items: center">
-            <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{b.id}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500">{{b.id}} <span style="color: #5B6270; font-weight: 400; font-size: 13px">{{b.ver}}</span></span>
             <span style="font-size: 13px; font-weight: 500; color: {{b.ink}}">{{b.state}}</span>
           </div>
           <div style="color: #5B6270; font-size: 13px">{{b.where}}</div>
           <div style="height: 6px; border-radius: 3px; background: #EEF0F3"><div style="height: 6px; border-radius: 3px; width: {{b.pct}}; background: {{b.bar}}"></div></div>
         </div>
       </sc-for>
+    </section>
+
+    <section aria-label="GitHub release and notes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; align-items: start">
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">GitHub release</h2>
+          <span style="color: #5B6270; font-size: 13px">Managed by Release Tool · follows the candidate build</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500">v4.12.0-rc.3</span>
+          <span style="padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #FFF3E0; color: #8A4B00">Pre-release</span>
+          <span style="color: #5B6270; font-size: 13px">b1842 · commit 9f3c2e1</span>
+        </div>
+        <ol aria-label="Release stages" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px">
+          <sc-for list="{{ghSteps}}" as="s" hint-placeholder-count="3">
+            <li style="display: flex; flex-direction: column; gap: 6px">
+              <span style="height: 6px; border-radius: 3px; background: {{s.bar}}"></span>
+              <span style="font-size: 14px; font-weight: {{s.weight}}; color: {{s.ink}}">{{s.label}}</span>
+              <span style="font-size: 12px; color: #5B6270">{{s.when}}</span>
+            </li>
+          </sc-for>
+        </ol>
+        <div style="border-top: 1px solid #EEF0F3; padding-top: 12px">
+          <div style="font-size: 13px; font-weight: 600; color: #5B6270; margin-bottom: 8px">Earlier releases for 4.12</div>
+          <sc-for list="{{ghHistory}}" as="h" hint-placeholder-count="2">
+            <div style="display: grid; grid-template-columns: 120px 96px minmax(0, 1fr); gap: 12px; padding: 6px 0; font-size: 13px; align-items: baseline">
+              <span style="font-family: 'IBM Plex Mono', monospace">{{h.tag}}</span>
+              <span style="padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #EEF0F3; color: #5B6270; justify-self: start">{{h.state}}</span>
+              <span style="color: #5B6270">{{h.note}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button type="button" disabled title="Ship unlocks when every readiness gate passes. Only release owners can ship." style="min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: #C4C9D2; color: #FFFFFF; font: inherit; font-weight: 600; cursor: not-allowed">Ship 4.12.0</button>
+          <span style="align-self: center; color: #5B6270; font-size: 13px">Locked: 1 Jira blocker open and errors above threshold</span>
+        </div>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600">Release notes</h2>
+          <span style="color: #5B6270; font-size: 13px">Generated from <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">v4.11.2...v4.12.0-rc.3</span> · regenerated 14:03</span>
+        </div>
+        <div role="tablist" aria-label="Notes view" style="display: flex; gap: 4px; border-bottom: 1px solid #E3E6EB">
+          <sc-for list="{{noteTabs}}" as="tb" hint-placeholder-count="2">
+            <button role="tab" aria-selected="{{tb.sel}}" onClick="{{tb.pick}}" style="{{tb.style}}">{{tb.label}}</button>
+          </sc-for>
+        </div>
+        <sc-for list="{{noteGroups}}" as="g" hint-placeholder-count="3">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">{{g.title}}<span style="font-size: 12px; font-weight: 500; color: {{g.tagInk}}">{{g.tag}}</span></div>
+            <ul style="margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px">
+              <sc-for list="{{g.items}}" as="i" hint-placeholder-count="2">
+                <li>{{i.text}} <span style="color: #5B6270; font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{i.ref}}</span></li>
+              </sc-for>
+            </ul>
+          </div>
+        </sc-for>
+        <div style="color: #5B6270; font-size: 13px; border-top: 1px solid #EEF0F3; padding-top: 10px">{{noteFoot}}</div>
+      </div>
     </section>
 
     <section aria-label="Charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 16px">
@@ -182,7 +243,7 @@ a{color:#2457D6}a:hover{color:#1A3FA0}
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { open: false, ago: 2, tick: 0 };
+    this.state = { open: false, ago: 2, tick: 0, notesTab: 'notes' };
   }
   componentDidMount() {
     this.timer = setInterval(() => {
@@ -239,22 +300,51 @@ class Component extends DCLogic {
     const errPrev = [2, 3, 2, 3, 3, 2, 3, 2, 3, 3, 2, 3, 2];
     const jira = [14, 14, 13, 12, 11, 10, 9, 8, 7, 6, 6];
     const builds = [
-      { id: 'b1842', state: 'Errors rising', ink: '#B42318', where: 'Staging · merged Oct 10, 14:02', pct: '80%', bar: '#B42318' },
-      { id: 'b1840', state: 'Passed', ink: '#1F7A4D', where: 'Staging · held as fallback', pct: '100%', bar: '#1F7A4D' },
-      { id: 'b1838', state: 'Superseded', ink: '#5B6270', where: 'Retired from staging Oct 9', pct: '100%', bar: '#B8BEC9' }
+      { id: 'b1842', ver: '4.12.0-rc.3', state: 'Errors rising', ink: '#B42318', where: 'Staging · merged Oct 10, 14:02', pct: '80%', bar: '#B42318' },
+      { id: 'b1840', ver: '4.12.0-rc.2', state: 'Passed', ink: '#1F7A4D', where: 'Staging · held as fallback', pct: '100%', bar: '#1F7A4D' },
+      { id: 'b1838', ver: '4.12.0-rc.1', state: 'Superseded', ink: '#5B6270', where: 'Retired from staging Oct 9', pct: '100%', bar: '#B8BEC9' }
     ];
     const events = [
       { time: '14:31', source: 'Kibana', text: 'Error rate on b1842 passed 8 per hour; release marked At risk' },
+      { time: '14:03', source: 'GitHub', text: 'Release v4.12.0-rc.3 set to pre-release; v4.12.0-rc.2 marked superseded' },
       { time: '14:02', source: 'GitHub', text: 'b1842 deployed to staging after checks passed' },
+      { time: '13:48', source: 'GitHub', text: 'b1842 built on release/4.12; draft release v4.12.0-rc.3 created with generated notes' },
       { time: '13:40', source: 'Jira', text: 'WEB-2291 moved to Done' },
       { time: '11:15', source: 'Datadog', text: 'Checkout latency monitor recovered' },
       { time: '09:20', source: 'Notion', text: 'Release notes draft updated' }
     ];
     const rec = this.recommend({ candidate: 'b1842', errNow: errNow, errPrev: errPrev, jiraOpen: jira[jira.length - 1], builds: builds });
     const jiraPath = jira.map((v, i) => (i ? 'L' : 'M') + (32 + i * 248 / (jira.length - 1)).toFixed(1) + ' ' + (160 - v / 14 * 140).toFixed(1)).join(' ');
+    const tab = this.state.notesTab;
+    const tabStyle = (on) => 'min-height: 40px; padding: 0 12px; border: 0; border-bottom: 2px solid ' + (on ? '#2457D6' : 'transparent') + '; background: none; font: inherit; font-size: 14px; font-weight: ' + (on ? '600' : '400') + '; color: ' + (on ? '#16181D' : '#5B6270') + '; cursor: pointer; margin-bottom: -1px';
+    const fullNotes = [
+      { title: 'Highlights', tag: 'Generated · edit to lock', tagInk: '#5B6270', items: [{ text: 'Invoice history moves to the new Billing API, and checkout recovers from network drops.', ref: '' }] },
+      { title: 'Features', tag: 'Edited · kept on regenerate', tagInk: '#1F7A4D', items: [{ text: 'Invoice history uses Billing API v2', ref: 'WEB-2270 · #1418' }, { text: 'Saved carts sync across devices', ref: 'WEB-2284 · #1426' }] },
+      { title: 'Fixes', tag: '', tagInk: '#5B6270', items: [{ text: 'Checkout button no longer submits twice', ref: 'WEB-2291 · #1431' }, { text: 'Date picker follows the browser locale', ref: 'WEB-2302 · #1437' }, { text: 'Checkout retries with backoff after a network drop', ref: 'WEB-2309 · #1439' }] },
+      { title: 'Known issues', tag: 'From Jira', tagInk: '#B42318', items: [{ text: 'Checkout error rate rising in staging (blocker)', ref: 'WEB-2311' }] }
+    ];
+    const diffNotes = [
+      { title: 'Added in rc.3', tag: '2 PRs since b1840', tagInk: '#5B6270', items: [{ text: 'Date picker follows the browser locale', ref: 'WEB-2302 · #1437' }, { text: 'Checkout retries with backoff after a network drop', ref: 'WEB-2309 · #1439' }] },
+      { title: 'Known issues added', tag: 'From Jira', tagInk: '#B42318', items: [{ text: 'Checkout error rate rising in staging (blocker)', ref: 'WEB-2311' }] }
+    ];
     return {
       ago: this.state.ago,
       rec: rec,
+      ghSteps: [
+        { label: 'Draft', when: 'Created 13:48 by the b1842 build', bar: '#1F7A4D', ink: '#16181D', weight: '500' },
+        { label: 'Pre-release', when: 'Since 14:03, when b1842 entered test', bar: '#C26A00', ink: '#8A4B00', weight: '600' },
+        { label: 'Released', when: 'When a release owner presses Ship', bar: '#EEF0F3', ink: '#5B6270', weight: '400' }
+      ],
+      ghHistory: [
+        { tag: 'v4.12.0-rc.2', state: 'Superseded', note: 'b1840 · replaced by rc.3 today, tag kept' },
+        { tag: 'v4.12.0-rc.1', state: 'Superseded', note: 'b1838 · replaced by rc.2 on Oct 9, tag kept' }
+      ],
+      noteTabs: [
+        { label: 'Full notes', sel: tab === 'notes' ? 'true' : 'false', style: tabStyle(tab === 'notes'), pick: () => this.setState({ notesTab: 'notes' }) },
+        { label: 'New since rc.2', sel: tab === 'diff' ? 'true' : 'false', style: tabStyle(tab === 'diff'), pick: () => this.setState({ notesTab: 'diff' }) }
+      ],
+      noteGroups: tab === 'notes' ? fullNotes : diffNotes,
+      noteFoot: 'On Ship, release facts are added: 3 builds, 2 environments, 1,284 of 1,460 tests passed, 412 user sessions. Sections someone edited stay as written when a new build regenerates the notes.',
       builds: builds,
       sessions: sessions.map((s) => ({ id: s.id, value: s.value, users: s.users, fill: s.fill, h: Math.round(s.value / maxS * 140) + 'px' })),
       errNow: this.line(errNow, 12),

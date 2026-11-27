@@ -1,0 +1,52 @@
+# Demo deploy for Release Tool. After a successful Build on a release/x.xx branch it records
+# GitHub deployments of that exact commit to qa, then staging. Release Tool listens for the
+# deployment_status events to show what is deployed where, and to move the GitHub release
+# from draft to pre-release once the candidate is in a test environment.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+
+permissions:
+  deployments: write
+
+jobs:
+  qa:
+    if: github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to qa
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          ENV_NAME: qa
+        run: |
+          id=$(jq -n --arg ref "$SHA" --arg env "$ENV_NAME" \
+            '{ref: $ref, environment: $env, auto_merge: false, required_contexts: [], description: "Demo deploy"}' \
+            | gh api "repos/$REPO/deployments" --input - --jq .id)
+          echo "Deployment $id: $SHA to $ENV_NAME (simulated)"
+          gh api "repos/$REPO/deployments/$id/statuses" -f state=in_progress --silent
+          sleep 20
+          gh api "repos/$REPO/deployments/$id/statuses" -f state=success -f description="Deployed $SHA" --silent
+
+  staging:
+    needs: qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to staging
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          ENV_NAME: staging
+        run: |
+          id=$(jq -n --arg ref "$SHA" --arg env "$ENV_NAME" \
+            '{ref: $ref, environment: $env, auto_merge: false, required_contexts: [], description: "Demo deploy"}' \
+            | gh api "repos/$REPO/deployments" --input - --jq .id)
+          echo "Deployment $id: $SHA to $ENV_NAME (simulated)"
+          gh api "repos/$REPO/deployments/$id/statuses" -f state=in_progress --silent
+          sleep 20
+          gh api "repos/$REPO/deployments/$id/statuses" -f state=success -f description="Deployed $SHA" --silent

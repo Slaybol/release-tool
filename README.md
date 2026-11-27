@@ -12,6 +12,8 @@ Live: https://slaybol.github.io/release-tool/
 - `dc-lite.js`: small renderer that makes the pages interactive
 - `morphdom.min.js`: DOM diffing library (MIT, see `morphdom-LICENSE.txt`)
 
-Static files only, no build step. To preview locally: `python3 -m http.server`, then open http://localhost:8000.
+The `app/` folder holds the working service (phase 1): it picks up builds from `release/x.xx` branches, keeps one GitHub release per release in step with its candidate build, and serves a live home page. See [app/README.md](app/README.md). The demo `Build` and `Deploy` workflows in `.github/workflows/` feed it.
+
+The mockup pages are static files, no build step. To preview locally: `python3 -m http.server`, then open http://localhost:8000.
 
 Tool logos on the Connections page are SVG paths from [Simple Icons](https://simpleicons.org) (CC0). The logos are trademarks of their owners and are used only to identify each tool.

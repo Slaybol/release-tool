@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Release Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/morphdom.min.js"></script>
+<script src="/dc-lite.js"></script>
+</head>
+<body>
+<template id="dc-src">
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+.card{transition:box-shadow .12s,border-color .12s}
+.card:hover,.card:focus-visible{box-shadow:0 2px 10px rgba(22,24,29,.08);border-color:#C9CED6}
+.card:hover .name{color:#2457D6}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="/" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+        <a href="/" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #EEF2FC; color: #16181D; text-decoration: none; font-weight: 500">Releases</a>
+        <a href="/hardware.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Hardware</a>
+        <a href="/integrations.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
+        <a href="/connections.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
+      </nav>
+      <span style="color: #5B6270; font-size: 13px">{{updated}}</span>
+    </div>
+  </header>
+
+  <main style="max-width: 1080px; margin: 0 auto; padding: 32px 32px 64px; display: flex; flex-direction: column; gap: 20px">
+    <div>
+      <h1 style="margin: 0; font-size: 28px; font-weight: 600">Releases</h1>
+      <p style="margin: 6px 0 0; color: #5B6270">{{summary}}</p>
+    </div>
+
+    <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+      <p style="margin: 0; padding: 24px; background: #FFFFFF; border: 1px solid #E3E6EB; border-radius: 12px; color: #5B6270">No releases in flight. Push a <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">release/x.xx</span> branch to start one.</p>
+    </sc-if>
+
+    <section aria-label="Releases in flight" style="display: flex; flex-direction: column; gap: 12px">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+        <a href="{{r.href}}" class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 20px 24px; background: #FFFFFF; border: 1px solid #E3E6EB; border-left: 4px solid {{r.dot}}; border-radius: 12px; color: #16181D; text-decoration: none">
+          <span style="flex: 1 1 200px; min-width: 0">
+            <span class="name" style="display: block; font-size: 18px; font-weight: 600">{{r.name}}</span>
+            <span style="display: block; margin-top: 2px; color: #5B6270; font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.version}}</span>
+          </span>
+          <span style="flex: 1 1 220px; min-width: 0">
+            <span style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: {{r.ink}}"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{r.dot}}"></span>{{r.status}}</span>
+            <span style="display: block; margin-top: 2px; color: #3D4350; font-size: 14px">{{r.why}}</span>
+          </span>
+          <span style="flex: 1 1 260px; min-width: 0">
+            <span style="display: flex; gap: 4px" aria-label="{{r.stageLabel}}">
+              <sc-for list="{{r.steps}}" as="st" hint-placeholder-count="4">
+                <span style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+                  <span style="height: 6px; border-radius: 3px; background: {{st.bar}}"></span>
+                  <span style="font-size: 12px; color: {{st.ink}}; font-weight: {{st.weight}}">{{st.label}}</span>
+                </span>
+              </sc-for>
+            </span>
+          </span>
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex: none; color: #8C93A0"><path d="M8 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </a>
+      </sc-for>
+    </section>
+
+    <sc-if value="{{hasShipped}}" hint-placeholder-val="{{ false }}">
+      <p style="margin: 8px 0 0; color: #5B6270; font-size: 14px">Recently shipped: <sc-for list="{{shipped}}" as="s" hint-placeholder-count="2"><a href="{{s.url}}" style="margin-right: 12px">{{s.label}}</a></sc-for></p>
+    </sc-if>
+  </main>
+</div>
+</template>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { data: null, error: '', live: false, loadedAt: 0, tick: 0 };
+  }
+  componentDidMount() {
+    this.load();
+    const es = new EventSource('/api/stream');
+    es.addEventListener('change', () => this.load());
+    es.onopen = () => this.setState({ live: true });
+    es.onerror = () => this.setState({ live: false });
+    setInterval(() => this.setState({ tick: this.state.tick + 1 }), 1000);
+  }
+  load() {
+    fetch('/api/releases').then((r) => r.json())
+      .then((data) => this.setState({ data: data, error: '', loadedAt: Date.now() }))
+      .catch((e) => this.setState({ error: String(e) }));
+  }
+  duration(ms) {
+    if (ms == null) return 'Not in test yet';
+    const m = Math.floor(ms / 60000), h = Math.floor(m / 60), d = Math.floor(h / 24);
+    if (d) return d + 'd ' + (h % 24) + 'h';
+    if (h) return h + 'h ' + (m % 60) + 'm';
+    return m + 'm';
+  }
+  label(env) { return env.length <= 3 ? env.toUpperCase() : env.charAt(0).toUpperCase() + env.slice(1); }
+  renderVals() {
+    const tone = {
+      building: { dot: '#8C93A0', ink: '#5B6270', label: 'Waiting for build' },
+      testing: { dot: '#C26A00', ink: '#8A4B00', label: 'Testing' },
+      'at-risk': { dot: '#B42318', ink: '#B42318', label: 'At risk' },
+      blocked: { dot: '#B42318', ink: '#B42318', label: 'Blocked' },
+      ready: { dot: '#1F7A4D', ink: '#1F7A4D', label: 'Ready to ship' }
+    };
+    const d = this.state.data || { inFlight: [], shipped: [] };
+    const ago = this.state.loadedAt ? Math.round((Date.now() - this.state.loadedAt) / 1000) : 0;
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    const rows = d.inFlight.map((r) => {
+      const t = tone[r.status] || tone.building;
+      const m = r.tests.matrix;
+      const envs = r.environments.map((e) => e.name);
+      let why = '';
+      if (r.status === 'building') why = 'Branch created, no build yet';
+      else if (r.status === 'ready') why = 'All checks pass';
+      else if (r.jira.blockers) why = plural(r.jira.blockers, 'blocker bug') + ' open';
+      else if (m && m.fail) why = plural(m.fail, 'test') + ' failing';
+      else if (r.status === 'at-risk') why = (r.reason || '').split('; ')[0];
+      else why = (m ? Math.round((m.pass + m.fail) / m.planned * 100) + '% tested · ' : '') + this.duration(r.timeInTestMs == null ? null : r.timeInTestMs + ago * 1000) + ' in test';
+      const reached = [!!r.candidate, envs.indexOf('qa') >= 0 || envs.indexOf('staging') >= 0, envs.indexOf('staging') >= 0, r.status === 'ready'];
+      const names = ['Built', 'QA', 'Staging', 'Ready'];
+      let last = -1; reached.forEach((x, i) => { if (x) last = i; });
+      return {
+        href: '/releases/' + r.line, name: r.name,
+        version: r.candidate ? r.candidate.version : 'No build yet',
+        status: t.label, dot: t.dot, ink: t.ink, why: why,
+        stageLabel: last >= 0 ? 'Reached ' + names[last] : 'Not built yet',
+        steps: names.map((n, i) => ({ label: n, bar: i <= last ? (r.status === 'blocked' || r.status === 'at-risk') && i === last ? t.dot : '#1F7A4D' : '#E3E6EB', ink: i <= last ? '#16181D' : '#8C93A0', weight: i === last ? '600' : '400' }))
+      };
+    });
+    const count = (st) => d.inFlight.filter((r) => st.indexOf(r.status) >= 0).length;
+    const parts = [];
+    const ready = count(['ready']), bad = count(['blocked', 'at-risk']), testing = count(['testing']);
+    if (ready) parts.push(ready + ' ready to ship');
+    if (bad) parts.push(bad + ' need' + (bad === 1 ? 's' : '') + ' attention');
+    if (testing) parts.push(testing + ' in testing');
+    return {
+      updated: this.state.error ? 'Could not load' : (this.state.loadedAt ? 'Updated ' + ago + 's ago' : 'Loading…'),
+      summary: rows.length ? plural(rows.length, 'release') + ' in flight' + (parts.length ? ': ' + parts.join(', ') + '.' : '.') : 'Nothing in flight.',
+      noRows: rows.length === 0,
+      rows: rows,
+      hasShipped: d.shipped.length > 0,
+      shipped: d.shipped.slice(0, 3).map((x) => ({ label: x.name + ' (' + (x.githubRelease ? x.githubRelease.tag : '') + ')', url: x.githubRelease ? x.githubRelease.url : '#' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

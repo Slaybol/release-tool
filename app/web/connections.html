@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Connections · Release Tool</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F7F9}
+a{color:#2457D6}a:hover{color:#1A3FA0}
+.card{background:#FFFFFF;border:1px solid #E3E6EB;border-radius:12px;padding:20px 24px}
+h2{margin:0;font-size:17px;font-weight:600}
+.card>.row:first-child{border-top:0}
+.row{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;padding:12px 0;border-top:1px solid #EEF0F3;font-size:14px}
+.muted{color:#5B6270}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-top:1px solid #EEF0F3}
+th{font-weight:500;color:#5B6270;font-size:13px;border-top:0}
+</style>
+</head>
+<body>
+<div style="min-height: 100vh; background: #F6F7F9; color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 15px">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EB">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="/" aria-label="Release Tool home" style="display: flex; align-items: center; gap: 12px; min-height: 44px; color: #16181D; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1" y="1" width="26" height="26" rx="7" fill="none" stroke="#2457D6" stroke-width="2"></rect><path d="M8 18l5-8 3 5 4-6" fill="none" stroke="#2457D6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span style="font-weight: 600; font-size: 17px">Release Tool</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; gap: 4px; flex-wrap: wrap">
+        <a href="/" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Releases</a>
+        <a href="/hardware.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Hardware</a>
+        <a href="/integrations.html" style="padding: 10px 14px; border-radius: 8px; color: #16181D; text-decoration: none; font-weight: 500">Integrations</a>
+        <a href="/connections.html" aria-current="page" style="padding: 10px 14px; border-radius: 8px; background: #EEF2FC; color: #16181D; text-decoration: none; font-weight: 500">Connections</a>
+      </nav>
+      <span></span>
+    </div>
+  </header>
+  <main style="max-width: 1080px; margin: 0 auto; padding: 32px 32px 64px; display: flex; flex-direction: column; gap: 20px">
+    <div>
+      <h1 style="margin: 0; font-size: 28px; font-weight: 600">Connections</h1>
+      <p style="margin: 6px 0 0" class="muted">The four tools Release Tool reads from. Nothing is entered by hand.</p>
+    </div>
+    <section class="card">
+      <div class="row" style="padding: 16px 0">
+        <span style="flex: 0 0 160px"><span style="display: block; font-weight: 600">GitHub</span><span class="muted" style="font-size: 13px">Builds, releases and deployments</span></span>
+        <span style="flex: 1 1 300px">Picks up each build on a release branch, keeps its GitHub release up to date, and sees what is deployed where.</span>
+        <span data-status style="flex: 0 0 auto; font-size: 13px; font-weight: 500"></span>
+      </div>
+      <div class="row" style="padding: 16px 0">
+        <span style="flex: 0 0 160px"><span style="display: block; font-weight: 600">Jira</span><span class="muted" style="font-size: 13px">Bugs</span></span>
+        <span style="flex: 1 1 300px">Open bugs on each release's fix version, and which ones block shipping.</span>
+        <span data-status style="flex: 0 0 auto; font-size: 13px; font-weight: 500"></span>
+      </div>
+      <div class="row" style="padding: 16px 0">
+        <span style="flex: 0 0 160px"><span style="display: block; font-weight: 600">Zephyr</span><span class="muted" style="font-size: 13px">Test results</span></span>
+        <span style="flex: 1 1 300px">Results for each test on each hardware setup in the test matrix.</span>
+        <span data-status style="flex: 0 0 auto; font-size: 13px; font-weight: 500"></span>
+      </div>
+      <div class="row" style="padding: 16px 0">
+        <span style="flex: 0 0 160px"><span style="display: block; font-weight: 600">Elastic</span><span class="muted" style="font-size: 13px">Real use</span></span>
+        <span style="flex: 1 1 300px">Signed-in users, sessions and errors for each build.</span>
+        <span data-status style="flex: 0 0 auto; font-size: 13px; font-weight: 500"></span>
+      </div>
+    </section>
+    <p class="muted" style="margin: 0; font-size: 14px">Coming later: Slack for ship and hold notices, and PagerDuty for incidents linked to a build.</p>
+  </main>
+<script>
+(function () {
+  var keys = ['github', 'jira', 'zephyr', 'telemetry'];
+  fetch('/api/releases').then(function (r) { return r.json(); }).then(function (d) {
+    var s = d.sources || {}; var demo = !!d.demo;
+    document.querySelectorAll('[data-status]').forEach(function (el, i) {
+      var live = !demo && (keys[i] === 'github' || s[keys[i]]);
+      el.innerHTML = '<span class="dot" style="background: ' + (live ? '#1F7A4D' : '#C26A00') + '"></span>' + (live ? 'Connected' : 'Simulated');
+      el.style.color = live ? '#1F7A4D' : '#8A4B00';
+    });
+  }).catch(function () {});
+})();
+</script>
+</div>
+</body>
+</html>

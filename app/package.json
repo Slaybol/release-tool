@@ -1,0 +1,30 @@
+{
+  "name": "release-tool-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Release Tool service: picks up builds from release/x.xx branches and keeps one GitHub release per release in step with its candidate build.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "import-matrix": "tsx scripts/import-matrix.ts",
+    "build:demo": "tsx scripts/build-demo.ts"
+  },
+  "dependencies": {
+    "@octokit/auth-app": "^8.3.1",
+    "@octokit/rest": "^22.0.1",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

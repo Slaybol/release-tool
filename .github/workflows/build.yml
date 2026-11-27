@@ -1,0 +1,48 @@
+# Demo build for Release Tool. A successful run of this workflow on a release/x.xx branch
+# is what Release Tool treats as a new build (BUILD_WORKFLOW=Build).
+name: Build
+
+on:
+  push:
+    branches: ['release/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Test the Release Tool service
+        working-directory: app
+        run: |
+          npm ci
+          npm run typecheck
+          npm test -- --reporter=default --reporter=junit --outputFile.junit=../test-results/junit.xml
+
+      # Release Tool reads artifacts named test-results* (JUnit XML) and counts them against this build.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results
+
+      - name: Package the site
+        run: |
+          mkdir -p dist
+          cp *.html *.js dist/
+          echo "$GITHUB_SHA" > dist/BUILD_SHA
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ github.run_number }}
+          path: dist
