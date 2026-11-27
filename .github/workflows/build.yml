@@ -1,10 +1,10 @@
-# Demo build for Release Tool. A successful run of this workflow on a release/x.xx branch
+# Demo build for Release Tool. A successful run of this workflow on a release/x.xx (or Release/x.xx) branch
 # is what Release Tool treats as a new build (BUILD_WORKFLOW=Build).
 name: Build
 
 on:
   push:
-    branches: ['release/**']
+    branches: ['release/**', 'Release/**']
   workflow_dispatch:
 
 permissions:

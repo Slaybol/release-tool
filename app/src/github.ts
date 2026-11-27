@@ -73,7 +73,7 @@ export class OctokitGitHub implements GitHubClient {
 
   async listReleaseBranches() {
     const branches = await this.gh.paginate(this.gh.repos.listBranches, { ...this.r, per_page: 100 });
-    return branches.map((b) => b.name).filter((n) => n.startsWith('release/'));
+    return branches.map((b) => b.name).filter((n) => /^release\//i.test(n));
   }
 
   async latestSuccessfulRun(branch: string, workflowName: string) {
